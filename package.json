@@ -1,0 +1,21 @@
+{
+  "name": "webhook-orchestrator",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "fix": "turbo run lint:fix"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@types/node": "^24.10.2",
+    "turbo": "^2.6.3",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "npm@10.9.3",
+  "private": true
+}
