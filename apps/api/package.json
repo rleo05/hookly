@@ -1,17 +1,24 @@
 {
   "name": "api",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "biome check src", 
+    "dev": "tsx watch src/app.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/app.js",
+    "lint": "biome check src",
     "lint:fix": "biome check --write src",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "fastify": "^5.6.2"
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.1.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
+    "pg": "^8.16.3",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.1.0",
     "tsx": "^4.21.0"
   }
 }
