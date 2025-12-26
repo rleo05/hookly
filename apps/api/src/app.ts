@@ -1,14 +1,29 @@
+import cors from '@fastify/cors';
 import Fastify from 'fastify';
-import { env } from './config/env';
-import { pingDatabase } from './lib/prisma';
+import {
+  serializerCompiler,
+  validatorCompiler,
+  type ZodTypeProvider,
+} from 'fastify-type-provider-zod';
+import { env } from './config/env.js';
+import { pingDatabase } from './lib/prisma.js';
+import { authRoutes } from './modules/auth/routes.js';
+import { userRoutes } from './modules/user/routes.js';
 
 const fastify = Fastify({
   logger: true,
+}).withTypeProvider<ZodTypeProvider>();
+
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
+
+fastify.register(cors, {
+  origin: true,
+  credentials: true,
 });
 
-fastify.get('/', async (_, reply) => {
-  reply.send({ hello: 'world' });
-});
+fastify.register(authRoutes, { prefix: '/auth' });
+fastify.register(userRoutes, { prefix: '/user' });
 
 const start = async () => {
   try {
