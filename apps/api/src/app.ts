@@ -7,6 +7,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { env } from './config/env.js';
 import { pingDatabase } from './lib/prisma.js';
+import { apiKeyRoutes } from './modules/api-key/routes.js';
 import { authRoutes } from './modules/auth/routes.js';
 import { userRoutes } from './modules/user/routes.js';
 
@@ -24,6 +25,7 @@ fastify.register(cors, {
 
 fastify.register(authRoutes, { prefix: '/auth' });
 fastify.register(userRoutes, { prefix: '/user' });
+fastify.register(apiKeyRoutes, { prefix: '/api-key' });
 
 const start = async () => {
   try {

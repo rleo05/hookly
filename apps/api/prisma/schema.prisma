@@ -16,6 +16,7 @@ model User {
   updatedAt      DateTime  @default(now()) @updatedAt
   accounts       Account[]
   sessions       Session[]
+  apiKeys        ApiKey[]
 
   @@map("users")
 }
@@ -62,4 +63,18 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verifications")
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  keyHash     String    @map("key_hash") @unique
+  name        String
+  keyId       String    @map("key_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  revokedAt   DateTime? @map("revoked_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([keyId])
+  @@map("api_keys")
 }
