@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { PaginationResult } from '../../commons/schema.js';
 
 export const apiKeyCreateSchema = z.object({
   name: z.string().min(3).max(100),
@@ -34,6 +35,7 @@ export type ApiKeyListItem = {
 
 export type ApiKeyListResponse = {
   keys: ApiKeyListItem[];
+  pagination: PaginationResult;
 };
 
 export class ApiKeyLimitError extends Error {

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { Prisma } from '@prisma/client';
+import type { Pagination } from '../../commons/schema.js';
 import { env } from '../../config/env.js';
 import prisma from '../../lib/prisma.js';
 import {
@@ -52,19 +53,33 @@ export async function create({ name, userId }: CreateApiKeyParams): Promise<ApiK
   throw new Error('failed to create api key');
 }
 
-export async function list(userId: string): Promise<ApiKeyListResponse> {
-  const keys = await prisma.apiKey.findMany({
-    where: { userId, revokedAt: null },
-    select: {
-      id: true,
-      keyId: true,
-      name: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+export async function list(userId: string, pagination: Pagination): Promise<ApiKeyListResponse> {
+  const [keys, total] = await prisma.$transaction([
+    prisma.apiKey.findMany({
+      where: { userId, revokedAt: null },
+      select: {
+        id: true,
+        keyId: true,
+        name: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (pagination.page - 1) * pagination.size,
+      take: pagination.size,
+    }),
+    prisma.apiKey.count({
+      where: { userId, revokedAt: null },
+    }),
+  ]);
 
-  return { keys };
+  const paginationResult = {
+    page: pagination.page,
+    size: pagination.size,
+    total,
+    totalPages: Math.ceil(total / pagination.size),
+  };
+
+  return { keys, pagination: paginationResult };
 }
 
 export async function revoke(id: string, userId: string): Promise<boolean> {
@@ -77,7 +92,7 @@ export async function revoke(id: string, userId: string): Promise<boolean> {
 }
 
 export async function validate(key: string) {
-  const parts = key.split("_");
+  const parts = key.split('_');
   if (parts.length !== 3) {
     return null;
   }
@@ -87,9 +102,9 @@ export async function validate(key: string) {
   if (prefix !== KEY_PREFIX) {
     return null;
   }
-  
+
   const apiKey = await prisma.apiKey.findUnique({
-    where: { keyId},
+    where: { keyId },
     select: {
       keyHash: true,
       revokedAt: true,
@@ -101,17 +116,20 @@ export async function validate(key: string) {
           createdAt: true,
           emailVerified: true,
           image: true,
-          updatedAt: true
-        }
-      }
-    }
+          updatedAt: true,
+        },
+      },
+    },
   });
 
   if (!apiKey || apiKey.revokedAt) {
     return null;
   }
 
-  const keyHashRequest = crypto.createHmac('sha256', env.API_KEY_SECRET).update(secret).digest('hex');
+  const keyHashRequest = crypto
+    .createHmac('sha256', env.API_KEY_SECRET)
+    .update(secret)
+    .digest('hex');
 
   if (apiKey.keyHash.length !== keyHashRequest.length) {
     return null;
@@ -119,7 +137,7 @@ export async function validate(key: string) {
 
   const isValid = crypto.timingSafeEqual(
     Buffer.from(apiKey.keyHash, 'hex'),
-    Buffer.from(keyHashRequest, 'hex')
+    Buffer.from(keyHashRequest, 'hex'),
   );
 
   return isValid ? apiKey.user : null;

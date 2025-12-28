@@ -1,6 +1,6 @@
-import { type FastifyReply, type FastifyRequest, type FastifyInstance } from 'fastify';
-import { auth, type Session, type User } from '../lib/better-auth.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
+import { auth, type Session, type User } from '../lib/better-auth.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -14,19 +14,16 @@ declare module 'fastify' {
 }
 
 const authPlugin = fp(async (fastify: FastifyInstance) => {
-  const authHook = async (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ): Promise<void> => {
+  const authHook = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const session = await auth.api.getSession({
       headers: request.headers as Record<string, string>,
     });
 
     if (!session) {
-      return reply.code(401).send({ 
-        statusCode: 401, 
-        error: 'Unauthorized', 
-        message: 'invalid auth token' 
+      return reply.code(401).send({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'invalid auth token',
       });
     }
 

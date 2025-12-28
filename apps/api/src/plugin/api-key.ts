@@ -1,7 +1,7 @@
-import type { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
-import { validate } from '../modules/api-key/service.js';
-import { type User } from '../lib/better-auth.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
+import type { User } from '../lib/better-auth.js';
+import { validate } from '../modules/api-key/service.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -14,29 +14,25 @@ declare module 'fastify' {
 }
 
 export const apiKeyPlugin = fp(async (fastify: FastifyInstance) => {
-  const apiKeyHook = async (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) => {
-
+  const apiKeyHook = async (request: FastifyRequest, reply: FastifyReply) => {
     const header = request.headers['x-api-key'];
     const apiKey = Array.isArray(header) ? header[0] : header;
 
     if (!apiKey) {
-      return reply.code(401).send({ 
-        statusCode: 401, 
-        error: 'Unauthorized', 
-        message: 'missing api key' 
+      return reply.code(401).send({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'missing api key',
       });
     }
 
     const user = await validate(apiKey);
 
     if (!user) {
-      return reply.code(401).send({ 
-        statusCode: 401, 
-        error: 'Unauthorized', 
-        message: 'invalid api key' 
+      return reply.code(401).send({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'invalid api key',
       });
     }
 
