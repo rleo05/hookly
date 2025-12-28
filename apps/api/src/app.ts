@@ -5,6 +5,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
+import { globalErrorHandler } from './commons/errors.js';
 import { env } from './config/env.js';
 import { pingDatabase } from './lib/prisma.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
@@ -24,6 +25,8 @@ fastify.register(cors, {
   origin: true,
   credentials: true,
 });
+
+fastify.setErrorHandler(globalErrorHandler);
 
 fastify.register(authPlugin);
 fastify.register(apiKeyPlugin);

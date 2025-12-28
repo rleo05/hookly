@@ -3,7 +3,6 @@ import { type Pagination, paginationSchema } from '../../commons/schema.js';
 import {
   type ApiKeyCreate,
   type ApiKeyDelete,
-  ApiKeyLimitError,
   apiKeyCreateSchema,
   apiKeyDeleteSchema,
 } from './schema.js';
@@ -18,18 +17,11 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
       schema: { body: apiKeyCreateSchema },
     },
     async (request, reply) => {
-      try {
-        const apiKey = await apiKeyService.create({
-          name: request.body.name,
-          userId: request.user!.id,
-        });
-        return reply.status(201).send(apiKey);
-      } catch (error) {
-        if (error instanceof ApiKeyLimitError) {
-          return reply.status(429).send({ message: error.message });
-        }
-        throw error;
-      }
+      const apiKey = await apiKeyService.create({
+        name: request.body.name,
+        userId: request.user!.id,
+      });
+      return reply.status(201).send(apiKey);
     },
   );
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ApiError } from '../../commons/errors.js';
 import type { PaginationResult } from '../../commons/schema.js';
 
 export const apiKeyCreateSchema = z.object({
@@ -38,9 +39,9 @@ export type ApiKeyListResponse = {
   pagination: PaginationResult;
 };
 
-export class ApiKeyLimitError extends Error {
+export class ApiKeyLimitError extends ApiError {
   constructor() {
-    super('api key limit reached');
+    super(403, 'api key limit reached');
     this.name = 'ApiKeyLimitError';
   }
 }
