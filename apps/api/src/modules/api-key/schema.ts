@@ -5,11 +5,11 @@ export const apiKeyCreateSchema = z.object({
 });
 
 export const apiKeyDeleteSchema = z.object({
-  id: z.string(),
+  id: z.cuid(),
 });
 
-export type ApiKeyCreateSchema = z.infer<typeof apiKeyCreateSchema>;
-export type ApiKeyDeleteSchema = z.infer<typeof apiKeyDeleteSchema>;
+export type ApiKeyCreate = z.infer<typeof apiKeyCreateSchema>;
+export type ApiKeyDelete = z.infer<typeof apiKeyDeleteSchema>;
 
 export type CreateApiKeyParams = {
   name: string;
@@ -27,6 +27,7 @@ export type ApiKeyResponse = {
 
 export type ApiKeyListItem = {
   id: string;
+  keyId: string;
   name: string;
   createdAt: Date;
 };

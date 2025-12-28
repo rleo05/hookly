@@ -10,8 +10,8 @@ import {
 } from './schema.js';
 
 const KEY_PREFIX = 'whook';
-const RETRY_UNIQUE_KEY = 2;
-const MAX_ACTIVE_KEYS = 1;
+const RETRY_UNIQUE_KEY = 3;
+const MAX_ACTIVE_KEYS = 15;
 
 export async function create({ name, userId }: CreateApiKeyParams): Promise<ApiKeyResponse> {
   const activeKeysCount = await prisma.apiKey.count({
@@ -23,9 +23,8 @@ export async function create({ name, userId }: CreateApiKeyParams): Promise<ApiK
   }
 
   for (let i = 0; i < RETRY_UNIQUE_KEY; i++) {
-    const raw = crypto.randomBytes(32).toString('hex');
-    const keyId = raw.slice(0, 8);
-    const secret = raw.slice(8);
+    const keyId = crypto.randomBytes(8).toString('hex');
+    const secret = crypto.randomBytes(32).toString('hex');
 
     try {
       const keyHash = crypto.createHmac('sha256', env.API_KEY_SECRET).update(secret).digest('hex');
@@ -58,6 +57,7 @@ export async function list(userId: string): Promise<ApiKeyListResponse> {
     where: { userId, revokedAt: null },
     select: {
       id: true,
+      keyId: true,
       name: true,
       createdAt: true,
     },
@@ -74,4 +74,53 @@ export async function revoke(id: string, userId: string): Promise<boolean> {
   });
 
   return result.count > 0;
+}
+
+export async function validate(key: string) {
+  const parts = key.split("_");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const [prefix, keyId, secret] = parts;
+
+  if (prefix !== KEY_PREFIX) {
+    return null;
+  }
+  
+  const apiKey = await prisma.apiKey.findUnique({
+    where: { keyId},
+    select: {
+      keyHash: true,
+      revokedAt: true,
+      user: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+          emailVerified: true,
+          image: true,
+          updatedAt: true
+        }
+      }
+    }
+  });
+
+  if (!apiKey || apiKey.revokedAt) {
+    return null;
+  }
+
+  const keyHashRequest = crypto.createHmac('sha256', env.API_KEY_SECRET).update(secret).digest('hex');
+
+  if (apiKey.keyHash.length !== keyHashRequest.length) {
+    return null;
+  }
+
+  const isValid = crypto.timingSafeEqual(
+    Buffer.from(apiKey.keyHash, 'hex'),
+    Buffer.from(keyHashRequest, 'hex')
+  );
+
+  return isValid ? apiKey.user : null;
 }

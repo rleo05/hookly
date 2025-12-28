@@ -9,6 +9,8 @@ import { env } from './config/env.js';
 import { pingDatabase } from './lib/prisma.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import { authRoutes } from './modules/auth/routes.js';
+import authPlugin from './plugin/auth.js';
+import apiKeyPlugin from './plugin/api-key.js';
 import { userRoutes } from './modules/user/routes.js';
 
 const fastify = Fastify({
@@ -22,6 +24,9 @@ fastify.register(cors, {
   origin: true,
   credentials: true,
 });
+
+fastify.register(authPlugin);
+fastify.register(apiKeyPlugin);
 
 fastify.register(authRoutes, { prefix: '/auth' });
 fastify.register(userRoutes, { prefix: '/user' });

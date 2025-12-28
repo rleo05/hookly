@@ -12,10 +12,10 @@ CREATE TABLE "api_keys" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "api_keys_key_hash_key" ON "api_keys"("key_hash");
+CREATE UNIQUE INDEX "api_keys_key_id_key" ON "api_keys"("key_id");
 
 -- CreateIndex
-CREATE INDEX "api_keys_key_id_idx" ON "api_keys"("key_id");
+CREATE INDEX "api_keys_user_id_idx" ON "api_keys"("user_id");
 
 -- AddForeignKey
 ALTER TABLE "api_keys" ADD CONSTRAINT "api_keys_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
