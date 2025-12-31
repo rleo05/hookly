@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { Prisma } from '@prisma/client';
-import type { Pagination } from '../../commons/schema.js';
 import { env } from '../../config/env.js';
 import prisma from '../../lib/prisma.js';
+import type { Pagination } from '../../shared/schema.js';
 import {
   ApiKeyLimitError,
   type ApiKeyListResponse,

@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { type Pagination, paginationSchema } from '../../commons/schema.js';
+import { type Pagination, paginationSchema } from '../../shared/schema.js';
 import {
   type ApiKeyCreate,
   type ApiKeyDelete,

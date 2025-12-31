@@ -5,7 +5,6 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
-import { globalErrorHandler } from './commons/errors.js';
 import { env } from './config/env.js';
 import { pingDatabase } from './lib/prisma.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
@@ -13,6 +12,7 @@ import { authRoutes } from './modules/auth/routes.js';
 import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
+import { globalErrorHandler } from './shared/errors.js';
 
 const fastify = Fastify({
   logger: true,

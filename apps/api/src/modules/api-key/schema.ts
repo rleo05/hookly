@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ApiError } from '../../commons/errors.js';
-import type { PaginationResult } from '../../commons/schema.js';
+import { ApiError } from '../../shared/errors.js';
+import type { PaginationResult } from '../../shared/schema.js';
 
 export const apiKeyCreateSchema = z.object({
   name: z.string().min(3).max(100),
