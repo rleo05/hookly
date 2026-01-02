@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { User } from '../lib/better-auth.js';
 
 export const paginationResultSchema = z.object({
   page: z.number(),

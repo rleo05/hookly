@@ -20,6 +20,13 @@ export const globalErrorHandler = (error: FastifyError, _: FastifyRequest, reply
     });
   }
 
+  if (error.code === 'FST_ERR_CTP_INVALID_JSON_BODY') {
+    return reply.status(400).send({
+      message: 'malformed json body',
+      statusCode: 400,
+    });
+  }
+
   if (error instanceof ApiError) {
     return reply
       .status(error.statusCode)
