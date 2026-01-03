@@ -6,6 +6,7 @@ import { generateNanoId } from '../../shared/utils.js';
 import {
   ApplicationIDConflict,
   type ApplicationList,
+  ApplicationNotFound,
   type CreateApplication,
   type UpdateApplication,
 } from './schema.js';
@@ -140,4 +141,23 @@ export async function remove(user: User, id: string) {
   });
 
   return true;
+}
+
+export async function findApplicationByUidAndUser(uid: string, userId: string) {
+  const app = await prisma.application.findFirst({
+    where: {
+      uid,
+      userId,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!app) {
+    throw new ApplicationNotFound();
+  }
+
+  return app.id;
 }

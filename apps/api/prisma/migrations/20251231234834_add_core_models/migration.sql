@@ -68,9 +68,6 @@ CREATE TABLE "event_attempts" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "applications_uid_key" ON "applications"("uid");
-
--- CreateIndex
 CREATE INDEX "applications_user_id_idx" ON "applications"("user_id");
 
 -- CreateIndex

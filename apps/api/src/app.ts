@@ -10,6 +10,7 @@ import { pingDatabase } from './lib/prisma.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
 import { authRoutes } from './modules/auth/routes.js';
+import eventRoutes from './modules/event/routes.js';
 import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
@@ -36,6 +37,7 @@ fastify.register(authRoutes, { prefix: '/auth' });
 fastify.register(userRoutes, { prefix: '/user' });
 fastify.register(apiKeyRoutes, { prefix: '/api-key' });
 fastify.register(applicationRoutes, { prefix: '/application' });
+fastify.register(eventRoutes);
 
 const start = async () => {
   try {
