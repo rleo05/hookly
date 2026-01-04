@@ -1,7 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { type Pagination, paginationSchema } from '../../shared/schema.js';
 import {
-  ApplicationNotFound,
   type ApplicationParamId,
   applicationParamIdSchema,
   type CreateApplication,
@@ -49,11 +48,6 @@ export default function applicationRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const application = await applicationService.get(request.user!, request.params.id);
-
-      if (!application) {
-        throw new ApplicationNotFound();
-      }
-
       reply.status(200).send(application);
     },
   );
@@ -72,11 +66,6 @@ export default function applicationRoutes(fastify: FastifyInstance) {
         request.params.id,
         request.body,
       );
-
-      if (!application) {
-        throw new ApplicationNotFound();
-      }
-
       reply.status(200).send(application);
     },
   );
@@ -89,12 +78,7 @@ export default function applicationRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const deleted = await applicationService.remove(request.user!, request.params.id);
-
-      if (!deleted) {
-        throw new ApplicationNotFound();
-      }
-
+      await applicationService.remove(request.user!, request.params.id);
       reply.status(204).send();
     },
   );

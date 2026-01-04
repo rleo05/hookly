@@ -72,7 +72,7 @@ export async function list(user: User, pagination: Pagination): Promise<Applicat
 }
 
 export async function get(user: User, id: string) {
-  return await prisma.application.findFirst({
+  const app = await prisma.application.findFirst({
     where: {
       uid: id,
       userId: user.id,
@@ -84,6 +84,12 @@ export async function get(user: User, id: string) {
       createdAt: true,
     },
   });
+
+  if (!app) {
+    throw new ApplicationNotFound();
+  }
+
+  return app;
 }
 
 export async function update(user: User, id: string, { name, externalId }: UpdateApplication) {
@@ -98,7 +104,7 @@ export async function update(user: User, id: string, { name, externalId }: Updat
     });
 
     if (!existingApp) {
-      return null;
+      throw new ApplicationNotFound();
     }
 
     return await prisma.application.update({
@@ -131,7 +137,9 @@ export async function remove(user: User, id: string) {
     select: { id: true },
   });
 
-  if (!existingApp) return false;
+  if (!existingApp) {
+    throw new ApplicationNotFound();
+  }
 
   await prisma.application.update({
     where: { id: existingApp.id },
@@ -139,8 +147,6 @@ export async function remove(user: User, id: string) {
       deletedAt: new Date(),
     },
   });
-
-  return true;
 }
 
 export async function findApplicationByUidAndUser(uid: string, userId: string) {
