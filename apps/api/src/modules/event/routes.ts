@@ -1,12 +1,13 @@
 import type { FastifyInstance } from 'fastify';
-import { type Pagination, paginationSchema } from '../../shared/schema.js';
 import {
-  type ApplicationUidParam,
-  applicationUidParamSchema,
+  type ApplicationUidQuery,
+  applicationUidQuerySchema,
   type CreateEventType,
   createEventTypeSchema,
-  type EventTypeParam,
-  eventTypeParamSchema,
+  type EventTypeNameParam,
+  eventTypeNameParamSchema,
+  type ListEventTypeQuery,
+  listEventTypeQuerySchema,
   type UpdateEventType,
   updateEventTypeSchema,
 } from './schema.js';
@@ -17,107 +18,74 @@ export default function eventRoutes(fastify: FastifyInstance) {
 
   fastify.register(
     async function eventTypesRoutes(instance: FastifyInstance) {
-      instance.get<{ Params: ApplicationUidParam; Querystring: Pagination }>(
-        '/:applicationUid',
+      instance.get<{ Querystring: ListEventTypeQuery }>(
+        '/',
         {
           schema: {
-            params: applicationUidParamSchema,
-            querystring: paginationSchema,
+            querystring: listEventTypeQuerySchema,
           },
         },
         async (request, reply) => {
           const eventTypes = await eventService.listEventTypes(
             request.user!.id,
-            request.params.applicationUid,
+            request.query.applicationUid,
             request.query,
           );
           reply.status(200).send(eventTypes);
         },
       );
 
-      instance.get<{ Params: EventTypeParam }>(
-        '/:applicationUid/:eventTypeName',
+      instance.get<{ Params: EventTypeNameParam; Querystring: ApplicationUidQuery }>(
+        '/:eventTypeName',
         {
           schema: {
-            params: eventTypeParamSchema,
+            params: eventTypeNameParamSchema,
+            querystring: applicationUidQuerySchema,
           },
         },
         async (request, reply) => {
           const eventType = await eventService.getEventType(
             request.user!.id,
-            request.params.applicationUid,
+            request.query.applicationUid,
             request.params.eventTypeName,
           );
           reply.status(200).send(eventType);
         },
       );
 
-      instance.post<{ Params: ApplicationUidParam; Body: CreateEventType }>(
-        '/:applicationUid',
+      instance.post<{ Querystring: ApplicationUidQuery; Body: CreateEventType }>(
+        '/',
         {
           schema: {
-            params: applicationUidParamSchema,
+            querystring: applicationUidQuerySchema,
             body: createEventTypeSchema,
           },
         },
         async (request, reply) => {
           const eventType = await eventService.createEventType(
             request.user!.id,
-            request.params.applicationUid,
+            request.query.applicationUid,
             request.body,
           );
           reply.status(201).send(eventType);
         },
       );
 
-      instance.put<{ Params: EventTypeParam; Body: UpdateEventType }>(
-        '/:applicationUid/:eventTypeName',
+      instance.put<{ Params: EventTypeNameParam; Querystring: ApplicationUidQuery; Body: UpdateEventType }>(
+        '/:eventTypeName',
         {
           schema: {
-            params: eventTypeParamSchema,
+            params: eventTypeNameParamSchema,
+            querystring: applicationUidQuerySchema,
             body: updateEventTypeSchema,
           },
         },
         async (request, reply) => {
           const eventType = await eventService.updateEventType(
             request.user!.id,
-            request.params.applicationUid,
+            request.query.applicationUid,
             request.params.eventTypeName,
             request.body,
-          );
-          reply.status(200).send(eventType);
-        },
-      );
-
-      instance.post<{ Params: EventTypeParam }>(
-        '/:applicationUid/:eventTypeName/disable',
-        {
-          schema: {
-            params: eventTypeParamSchema,
-          },
-        },
-        async (request, reply) => {
-          const eventType = await eventService.disableEventType(
-            request.user!.id,
-            request.params.applicationUid,
-            request.params.eventTypeName,
-          );
-          reply.status(200).send(eventType);
-        },
-      );
-
-      instance.post<{ Params: EventTypeParam }>(
-        '/:applicationUid/:eventTypeName/enable',
-        {
-          schema: {
-            params: eventTypeParamSchema,
-          },
-        },
-        async (request, reply) => {
-          const eventType = await eventService.enableEventType(
-            request.user!.id,
-            request.params.applicationUid,
-            request.params.eventTypeName,
           );
           reply.status(200).send(eventType);
         },

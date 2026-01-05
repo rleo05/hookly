@@ -11,6 +11,8 @@ import {
   type UpdateEventType,
 } from './schema.js';
 
+// event types
+
 export async function listEventTypes(
   userId: string,
   applicationUid: string,
@@ -75,7 +77,7 @@ export async function getEventType(userId: string, applicationUid: string, event
 export async function createEventType(
   userId: string,
   applicationUid: string,
-  { name, description }: CreateEventType,
+  { name, description, disabled }: CreateEventType,
 ) {
   const normalizedEventTypeName = normalizeEventTypeName(name);
   try {
@@ -85,6 +87,7 @@ export async function createEventType(
       data: {
         name: normalizedEventTypeName,
         description: description ?? null,
+        disabled: disabled ?? false,
         applicationId: appId,
       },
       select: {
@@ -107,7 +110,7 @@ export async function updateEventType(
   userId: string,
   applicationUid: string,
   eventTypeName: string,
-  { description }: UpdateEventType,
+  { description, disabled }: UpdateEventType,
 ) {
   const normalizedName = normalizeEventTypeName(eventTypeName);
   const appId = await findApplicationByUidAndUser(applicationUid, userId);
@@ -130,100 +133,9 @@ export async function updateEventType(
       id: existingEventType.id,
     },
     data: {
-      description,
+      ...(description !== undefined && { description }),
+      ...(disabled !== undefined && { disabled }),
     },
-    select: {
-      name: true,
-      description: true,
-      createdAt: true,
-      disabled: true,
-    },
-  });
-}
-
-export async function disableEventType(
-  userId: string,
-  applicationUid: string,
-  eventTypeName: string,
-) {
-  const normalizedName = normalizeEventTypeName(eventTypeName);
-  const appId = await findApplicationByUidAndUser(applicationUid, userId);
-  const existingEventType = await prisma.eventType.findFirst({
-    where: {
-      name: normalizedName,
-      applicationId: appId,
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      createdAt: true,
-      disabled: true,
-    },
-  });
-
-  if (!existingEventType) {
-    throw new EventTypeNotFound();
-  }
-
-  if (existingEventType.disabled) {
-    return {
-      name: existingEventType.name,
-      description: existingEventType.description,
-      createdAt: existingEventType.createdAt,
-      disabled: existingEventType.disabled,
-    };
-  }
-
-  return await prisma.eventType.update({
-    where: { id: existingEventType.id },
-    data: { disabled: true },
-    select: {
-      name: true,
-      description: true,
-      createdAt: true,
-      disabled: true,
-    },
-  });
-}
-
-export async function enableEventType(
-  userId: string,
-  applicationUid: string,
-  eventTypeName: string,
-) {
-  const normalizedName = normalizeEventTypeName(eventTypeName);
-  const appId = await findApplicationByUidAndUser(applicationUid, userId);
-  const existingEventType = await prisma.eventType.findFirst({
-    where: {
-      name: normalizedName,
-      applicationId: appId,
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      createdAt: true,
-      disabled: true,
-    },
-  });
-
-  if (!existingEventType) {
-    throw new EventTypeNotFound();
-  }
-
-  if (!existingEventType.disabled) {
-    return {
-      name: existingEventType.name,
-      description: existingEventType.description,
-      createdAt: existingEventType.createdAt,
-      disabled: existingEventType.disabled,
-    };
-  }
-
-  return await prisma.eventType.update({
-    where: { id: existingEventType.id },
-    data: { disabled: false },
     select: {
       name: true,
       description: true,
@@ -262,5 +174,7 @@ export function normalizeEventTypeName(name: string) {
     .replace(/[\s_-]+/g, '.')
     .replace(/[^a-z0-9.]/g, '')
     .replace(/\.+/g, '.')
-    .replace(/^\.|\.$/g, '');
+    .replace(/^\.|\.$/, '');
 }
+
+// events

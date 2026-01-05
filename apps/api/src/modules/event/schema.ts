@@ -5,28 +5,37 @@ import type { PaginationResult } from '../../shared/schema.js';
 export const createEventTypeSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
+  disabled: z.boolean().optional(),
 });
 
 export type CreateEventType = z.infer<typeof createEventTypeSchema>;
 
 export const updateEventTypeSchema = z.object({
-  description: z.string().max(500),
+  description: z.string().max(500).optional(),
+  disabled: z.boolean().optional(),
 });
 
 export type UpdateEventType = z.infer<typeof updateEventTypeSchema>;
 
-export const eventTypeParamSchema = z.object({
-  applicationUid: z.string().min(1),
+export const eventTypeNameParamSchema = z.object({
   eventTypeName: z.string().min(1),
 });
 
-export const applicationUidParamSchema = z.object({
+export const applicationUidQuerySchema = z.object({
   applicationUid: z.string().min(1),
 });
 
-export type EventTypeParam = z.infer<typeof eventTypeParamSchema>;
+export const listEventTypeQuerySchema = z.object({
+  applicationUid: z.string().min(1),
+  page: z.coerce.number().min(1).default(1),
+  size: z.coerce.number().min(1).max(100).default(10),
+});
 
-export type ApplicationUidParam = z.infer<typeof applicationUidParamSchema>;
+export type EventTypeNameParam = z.infer<typeof eventTypeNameParamSchema>;
+
+export type ApplicationUidQuery = z.infer<typeof applicationUidQuerySchema>;
+
+export type ListEventTypeQuery = z.infer<typeof listEventTypeQuerySchema>;
 
 export type EventTypeItem = {
   name: string;
@@ -42,7 +51,7 @@ export type EventTypesList = {
 
 export class EventTypeNotFound extends ApiError {
   constructor() {
-    super(404, 'event type not found');
+    super(404, 'event type not found or disabled');
     this.name = 'EventTypeNotFound';
   }
 }
@@ -56,7 +65,7 @@ export class EventTypeConflict extends ApiError {
 
 export class EventTypeListNotFound extends ApiError {
   constructor(eventTypes: string[]) {
-    super(404, `event types [${eventTypes.join(', ')}] not found`);
+    super(404, `event types [${eventTypes.join(', ')}] not found or disabled`);
     this.name = 'EventTypeListNotFound';
   }
 }

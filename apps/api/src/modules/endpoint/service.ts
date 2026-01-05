@@ -196,10 +196,6 @@ export async function remove(userId: string, id: string) {
     throw new EndpointNotFound();
   }
 
-  if (existingEndpoint.deletedAt) {
-    return;
-  }
-
   await prisma.endpoint.update({
     where: { id: existingEndpoint.id },
     data: { deletedAt: new Date(), isActive: false },
