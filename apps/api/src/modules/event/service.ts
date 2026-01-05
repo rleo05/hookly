@@ -1,14 +1,21 @@
 import { Prisma } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import type { Pagination } from '../../shared/schema.js';
+import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
 import {
+  type CreateEvent,
   type CreateEventType,
+  type EventItem,
+  type EventList,
+  EventNotFound,
   EventTypeConflict,
   EventTypeListNotFound,
   EventTypeNotFound,
   type EventTypesList,
+  type ListEventQuery,
   type UpdateEventType,
+  EventExternalIdConflict,
 } from './schema.js';
 
 // event types
@@ -98,7 +105,6 @@ export async function createEventType(
       },
     });
   } catch (err) {
-    console.log(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       throw new EventTypeConflict();
     }
@@ -178,3 +184,118 @@ export function normalizeEventTypeName(name: string) {
 }
 
 // events
+
+const EVENT_PREFIX = 'evt_';
+
+export async function listEvents(userId: string, query: ListEventQuery): Promise<EventList> {
+  const applicationId = await findApplicationByUidAndUser(query.applicationUid, userId);
+
+  const wherePagination = { applicationId };
+
+  const [events, total] = await prisma.$transaction([
+    prisma.event.findMany({
+      where: wherePagination,
+      skip: (query.page - 1) * query.size,
+      take: query.size,
+      select: {
+        uid: true,
+        eventType: true,
+        externalId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.event.count({ where: wherePagination }),
+  ]);
+
+  return {
+    events: events.map((e) => ({
+      uid: e.uid,
+      applicationUid: query.applicationUid,
+      eventType: e.eventType,
+      externalId: e.externalId ?? undefined,
+      createdAt: e.createdAt,
+    })),
+    pagination: {
+      page: query.page,
+      size: query.size,
+      total,
+      totalPages: Math.ceil(total / query.size),
+    },
+  };
+}
+
+export async function getEvent(userId: string, uid: string): Promise<EventItem> {
+  const event = await prisma.event.findFirst({
+    where: {
+      uid,
+      application: {
+        userId,
+        deletedAt: null,
+      },
+    },
+    select: {
+      uid: true,
+      eventType: true,
+      externalId: true,
+      payload: true,
+      createdAt: true,
+      application: {
+        select: { uid: true },
+      },
+    },
+  });
+
+  if (!event) {
+    throw new EventNotFound();
+  }
+
+  return {
+    uid: event.uid,
+    applicationUid: event.application.uid,
+    eventType: event.eventType,
+    externalId: event.externalId ?? undefined,
+    payload: event.payload,
+    createdAt: event.createdAt,
+  };
+}
+
+export async function createEvent(
+  userId: string,
+  { applicationUid, eventType, externalId, payload }: CreateEvent,
+): Promise<EventItem> {
+  const uid = `${EVENT_PREFIX}${generateNanoId()}`;
+  const appId = await findApplicationByUidAndUser(applicationUid, userId);
+  try {
+    const event = await prisma.event.create({
+      data: {
+        uid,
+        applicationId: appId,
+        eventType,
+        externalId: externalId ?? null,
+        payload,
+      },
+      select: {
+        uid: true,
+        eventType: true,
+        externalId: true,
+        payload: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      uid: event.uid,
+      applicationUid,
+      externalId: event.externalId ?? undefined,
+      eventType: event.eventType,
+      payload: event.payload,
+      createdAt: event.createdAt
+    };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      throw new EventExternalIdConflict();
+    }
+    throw err;
+  }
+}

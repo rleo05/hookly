@@ -2,10 +2,16 @@ import type { FastifyInstance } from 'fastify';
 import {
   type ApplicationUidQuery,
   applicationUidQuerySchema,
+  type CreateEvent,
   type CreateEventType,
+  createEventSchema,
   createEventTypeSchema,
   type EventTypeNameParam,
   eventTypeNameParamSchema,
+  type EventUidParam,
+  eventUidParamSchema,
+  type ListEventQuery,
+  listEventQuerySchema,
   type ListEventTypeQuery,
   listEventTypeQuerySchema,
   type UpdateEventType,
@@ -71,7 +77,11 @@ export default function eventRoutes(fastify: FastifyInstance) {
         },
       );
 
-      instance.put<{ Params: EventTypeNameParam; Querystring: ApplicationUidQuery; Body: UpdateEventType }>(
+      instance.put<{
+        Params: EventTypeNameParam;
+        Querystring: ApplicationUidQuery;
+        Body: UpdateEventType;
+      }>(
         '/:eventTypeName',
         {
           schema: {
@@ -92,5 +102,49 @@ export default function eventRoutes(fastify: FastifyInstance) {
       );
     },
     { prefix: '/event-type' },
+  );
+
+  fastify.register(
+    async function eventsRoutes(instance: FastifyInstance) {
+      instance.get<{ Querystring: ListEventQuery }>(
+        '/',
+        {
+          schema: {
+            querystring: listEventQuerySchema,
+          },
+        },
+        async (request, reply) => {
+          const events = await eventService.listEvents(request.user!.id, request.query);
+          reply.status(200).send(events);
+        },
+      );
+
+      instance.get<{ Params: EventUidParam }>(
+        '/:uid',
+        {
+          schema: {
+            params: eventUidParamSchema,
+          },
+        },
+        async (request, reply) => {
+          const event = await eventService.getEvent(request.user!.id, request.params.uid);
+          reply.status(200).send(event);
+        },
+      );
+
+      instance.post<{ Body: CreateEvent }>(
+        '/',
+        {
+          schema: {
+            body: createEventSchema,
+          },
+        },
+        async (request, reply) => {
+          const event = await eventService.createEvent(request.user!.id, request.body);
+          reply.status(202).send(event);
+        },
+      );
+    },
+    { prefix: '/event' },
   );
 }

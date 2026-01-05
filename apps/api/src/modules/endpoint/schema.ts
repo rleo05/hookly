@@ -4,7 +4,7 @@ import type { PaginationResult } from '../../shared/schema.js';
 
 export const createEndpointSchema = z.object({
   applicationUid: z.string().min(1),
-  url: z.url().refine((url) => url.startsWith('https://'), 'url must be https'),
+  url: z.url({ error: 'url must be https', protocol: /^https$/ }),
   description: z.string().optional(),
   eventTypes: z.array(z.string().min(1)).nullable().optional(),
   secret: z.string().min(3).optional(),
@@ -14,10 +14,7 @@ export const createEndpointSchema = z.object({
 export type CreateEndpoint = z.infer<typeof createEndpointSchema>;
 
 export const updateEndpointSchema = z.object({
-  url: z
-    .url()
-    .refine((url) => url.startsWith('https://'), 'url must be https')
-    .optional(),
+  url: z.url({ error: 'url must be https', protocol: /^https$/ }).optional(),
   description: z.string().optional(),
   eventTypes: z.array(z.string().min(1)).nullable().optional(),
   secret: z.string().min(3).optional(),

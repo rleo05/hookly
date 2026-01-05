@@ -82,7 +82,7 @@ model ApiKey {
 
 model Application {
   id          String   @id @default(cuid()) 
-  uid         String   @unique            
+  uid         String           
   name        String  
 
   userId      String   @map("user_id")
@@ -142,18 +142,19 @@ model Endpoint {
 
 model Event {
   id            String   @id @default(cuid())
+  uid           String   @unique
   applicationId String   @map("application_id")
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   payload       Json
   eventType     String
 
-  eventId       String?   @map("event_id")
+  externalId    String?   @map("external_id")
   attempts      EventAttempt[]
 
   createdAt     DateTime  @default(now()) @map("created_at")
 
-  @@unique([applicationId, eventId])
+  @@unique([applicationId, externalId])
   @@index([applicationId, createdAt(sort: Desc)])
   @@map("events")
 }
