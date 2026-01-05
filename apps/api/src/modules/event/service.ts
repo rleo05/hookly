@@ -5,6 +5,7 @@ import { findApplicationByUidAndUser } from '../application/service.js';
 import {
   type CreateEventType,
   EventTypeConflict,
+  EventTypeListNotFound,
   EventTypeNotFound,
   type EventTypesList,
   type UpdateEventType,
@@ -16,12 +17,12 @@ export async function listEventTypes(
   pagination: Pagination,
 ): Promise<EventTypesList> {
   const appId = await findApplicationByUidAndUser(applicationUid, userId);
-  const whereAppUser = {
+  const wherePagination = {
     applicationId: appId,
   };
   const [eventTypes, total] = await prisma.$transaction([
     prisma.eventType.findMany({
-      where: whereAppUser,
+      where: wherePagination,
       select: {
         name: true,
         description: true,
@@ -33,7 +34,7 @@ export async function listEventTypes(
       orderBy: { createdAt: 'desc' },
     }),
     prisma.eventType.count({
-      where: whereAppUser,
+      where: wherePagination,
     }),
   ]);
 
@@ -232,7 +233,27 @@ export async function enableEventType(
   });
 }
 
-function normalizeEventTypeName(name: string) {
+export async function checkExistingEventTypes(eventTypes: string[], appId: string) {
+  const foundEventTypes = await prisma.eventType.findMany({
+    where: {
+      applicationId: appId,
+      name: {
+        in: eventTypes,
+      },
+      disabled: false,
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  if (foundEventTypes.length !== eventTypes.length) {
+    const missingEventTypes = eventTypes.filter((e) => !foundEventTypes.find((f) => f.name === e));
+    throw new EventTypeListNotFound(missingEventTypes);
+  }
+}
+
+export function normalizeEventTypeName(name: string) {
   return name
     .trim()
     .toLowerCase()

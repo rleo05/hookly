@@ -53,3 +53,10 @@ export class EventTypeConflict extends ApiError {
     this.name = 'EventTypeConflict';
   }
 }
+
+export class EventTypeListNotFound extends ApiError {
+  constructor(eventTypes: string[]) {
+    super(404, `event types [${eventTypes.join(', ')}] not found`);
+    this.name = 'EventTypeListNotFound';
+  }
+}

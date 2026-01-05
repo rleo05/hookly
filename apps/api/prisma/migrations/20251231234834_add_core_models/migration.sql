@@ -35,6 +35,8 @@ CREATE TABLE "endpoints" (
     "secret" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(3),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "eventTypes" TEXT[],
 
     CONSTRAINT "endpoints_pkey" PRIMARY KEY ("id")
