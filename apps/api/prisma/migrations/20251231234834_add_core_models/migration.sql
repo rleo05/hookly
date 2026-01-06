@@ -5,6 +5,7 @@ CREATE TYPE "AttemptStatus" AS ENUM ('WAITING', 'PROCESSING', 'COMPLETED', 'FAIL
 CREATE TABLE "applications" (
     "id" TEXT NOT NULL,
     "uid" TEXT NOT NULL,
+    "external_id" TEXT,
     "name" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -71,6 +72,9 @@ CREATE TABLE "event_attempts" (
 
 -- CreateIndex
 CREATE INDEX "applications_user_id_idx" ON "applications"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "applications_uid_key" ON "applications"("uid");
 
 -- CreateIndex
 CREATE INDEX "event_types_application_id_idx" ON "event_types"("application_id");

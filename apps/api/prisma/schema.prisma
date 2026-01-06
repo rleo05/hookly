@@ -82,11 +82,13 @@ model ApiKey {
 
 model Application {
   id          String   @id @default(cuid()) 
-  uid         String           
+  uid         String   @unique        
   name        String  
 
   userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  externalId String?   @map("external_id")
   
   events      Event[]
   endpoints   Endpoint[]

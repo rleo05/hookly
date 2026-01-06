@@ -1,61 +1,66 @@
 import { Prisma } from '@prisma/client';
-import type { User } from '../../lib/better-auth.js';
 import prisma from '../../lib/prisma.js';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import {
-  ApplicationIDConflict,
+  ApplicationExternalIdConflict,
   type ApplicationList,
   ApplicationNotFound,
   type CreateApplication,
   type UpdateApplication,
+  type ApplicationItem,
 } from './schema.js';
 
 const nanoidPrefix = 'app_';
 
-export async function create(user: User, { name, externalId }: CreateApplication) {
+export async function create(userId: string, { name, externalId }: CreateApplication): Promise<ApplicationItem> {
   try {
-    const uid = externalId ?? `${nanoidPrefix}${generateNanoId()}`;
-    return await prisma.application.create({
+    const uid = `${nanoidPrefix}${generateNanoId()}`;
+    const app = await prisma.application.create({
       data: {
         uid,
         name,
-        userId: user.id,
+        userId,
+        externalId: externalId ?? null,
       },
       select: {
         uid: true,
+        externalId: true,
         name: true,
         createdAt: true,
       },
     });
+    return { ...app, externalId: app.externalId ?? undefined };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      throw new ApplicationIDConflict();
+      throw new ApplicationExternalIdConflict();
     }
     throw err;
   }
 }
 
-export async function list(user: User, pagination: Pagination): Promise<ApplicationList> {
-  const [applications, total] = await prisma.$transaction([
+export async function list(userId: string, pagination: Pagination): Promise<ApplicationList> {
+  const wherePagination = {
+    userId,
+    deletedAt: null,
+  }
+  const [apps, total] = await prisma.$transaction([
     prisma.application.findMany({
-      where: {
-        userId: user.id,
-        deletedAt: null,
-      },
+      where: wherePagination,
       skip: (pagination.page - 1) * pagination.size,
       take: pagination.size,
       select: {
         uid: true,
+        externalId: true,
         name: true,
         createdAt: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     }),
     prisma.application.count({
-      where: {
-        userId: user.id,
-        deletedAt: null,
-      },
+      where: wherePagination,
     }),
   ]);
   const paginationResult = {
@@ -66,16 +71,16 @@ export async function list(user: User, pagination: Pagination): Promise<Applicat
   };
 
   return {
-    applications,
+    applications: apps.map((app) => ({ ...app, externalId: app.externalId ?? undefined })),
     pagination: paginationResult,
   };
 }
 
-export async function get(user: User, id: string) {
+export async function get(userId: string, id: string) {
   const app = await prisma.application.findFirst({
     where: {
       uid: id,
-      userId: user.id,
+      userId,
       deletedAt: null,
     },
     select: {
@@ -92,12 +97,12 @@ export async function get(user: User, id: string) {
   return app;
 }
 
-export async function update(user: User, id: string, { name, externalId }: UpdateApplication) {
+export async function update(userId: string, uid: string, { name, externalId }: UpdateApplication) {
   try {
     const existingApp = await prisma.application.findFirst({
       where: {
-        uid: id,
-        userId: user.id,
+        uid,
+        userId,
         deletedAt: null,
       },
       select: { id: true },
@@ -107,33 +112,36 @@ export async function update(user: User, id: string, { name, externalId }: Updat
       throw new ApplicationNotFound();
     }
 
-    return await prisma.application.update({
+    const updatedApp = await prisma.application.update({
       where: {
         id: existingApp.id,
       },
       data: {
         ...(name && { name }),
-        ...(externalId && { uid: externalId }),
+        ...(externalId && { externalId }),
       },
       select: {
         uid: true,
+        externalId: true,
         name: true,
         createdAt: true,
       },
     });
+
+    return { ...updatedApp, externalId: updatedApp.externalId ?? undefined };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === 'P2002') {
-        throw new ApplicationIDConflict();
+        throw new ApplicationExternalIdConflict();
       }
     }
     throw err;
   }
 }
 
-export async function remove(user: User, id: string) {
+export async function remove(userId: string, uid: string) {
   const existingApp = await prisma.application.findFirst({
-    where: { uid: id, userId: user.id, deletedAt: null },
+    where: { uid, userId, deletedAt: null },
     select: { id: true },
   });
 

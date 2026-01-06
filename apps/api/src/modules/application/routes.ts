@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { type Pagination, paginationSchema } from '../../shared/schema.js';
 import {
-  type ApplicationParamId,
-  applicationParamIdSchema,
+  type ApplicationParamUid,
+  applicationParamUidSchema,
   type CreateApplication,
   createApplicationSchema,
   type UpdateApplication,
@@ -21,7 +21,7 @@ export default function applicationRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const application = await applicationService.create(request.user!, request.body);
+      const application = await applicationService.create(request.user!.id, request.body);
       reply.status(201).send(application);
     },
   );
@@ -34,51 +34,51 @@ export default function applicationRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const applications = await applicationService.list(request.user!, request.query);
+      const applications = await applicationService.list(request.user!.id, request.query);
       reply.status(200).send(applications);
     },
   );
 
-  fastify.get<{ Params: ApplicationParamId }>(
-    '/:id',
+  fastify.get<{ Params: ApplicationParamUid }>(
+    '/:uid',
     {
       schema: {
-        params: applicationParamIdSchema,
+        params: applicationParamUidSchema,
       },
     },
     async (request, reply) => {
-      const application = await applicationService.get(request.user!, request.params.id);
+      const application = await applicationService.get(request.user!.id, request.params.uid);
       reply.status(200).send(application);
     },
   );
 
-  fastify.put<{ Params: ApplicationParamId; Body: UpdateApplication }>(
-    '/:id',
+  fastify.put<{ Params: ApplicationParamUid; Body: UpdateApplication }>(
+    '/:uid',
     {
       schema: {
-        params: applicationParamIdSchema,
+        params: applicationParamUidSchema,
         body: updateApplicationSchema,
       },
     },
     async (request, reply) => {
       const application = await applicationService.update(
-        request.user!,
-        request.params.id,
+        request.user!.id,
+        request.params.uid,
         request.body,
       );
       reply.status(200).send(application);
     },
   );
 
-  fastify.delete<{ Params: ApplicationParamId }>(
-    '/:id',
+  fastify.delete<{ Params: ApplicationParamUid }>(
+    '/:uid',
     {
       schema: {
-        params: applicationParamIdSchema,
+        params: applicationParamUidSchema,
       },
     },
     async (request, reply) => {
-      await applicationService.remove(request.user!, request.params.id);
+      await applicationService.remove(request.user!.id, request.params.uid);
       reply.status(204).send();
     },
   );

@@ -4,39 +4,42 @@ import type { PaginationResult } from '../../shared/schema.js';
 
 export const createApplicationSchema = z.object({
   name: z.string().min(3).max(100),
-  externalId: z.string().optional(),
+  externalId: z.string().min(1).optional(),
 });
 
 export type CreateApplication = z.infer<typeof createApplicationSchema>;
 
-export type ApplicationItem = {
-  uid: string;
-  name: string;
-  createdAt: Date;
-};
+export const applicationItemSchema = z.object({
+  uid: z.string(),
+  externalId: z.string().min(1).nullable().transform((v) => v ?? undefined),
+  name: z.string(),
+  createdAt: z.date(),
+});
+
+export type ApplicationItem = z.infer<typeof applicationItemSchema>;
 
 export type ApplicationList = {
   applications: ApplicationItem[];
   pagination: PaginationResult;
 };
 
-export const applicationParamIdSchema = z.object({
-  id: z.string().min(1),
+export const applicationParamUidSchema = z.object({
+  uid: z.string().min(1),
 });
 
-export type ApplicationParamId = z.infer<typeof applicationParamIdSchema>;
+export type ApplicationParamUid = z.infer<typeof applicationParamUidSchema>;
 
 export const updateApplicationSchema = z.object({
   name: z.string().min(3).max(100).optional(),
-  externalId: z.string().optional(),
+  externalId: z.string().min(1).optional(),
 });
 
 export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
 
-export class ApplicationIDConflict extends ApiError {
+export class ApplicationExternalIdConflict extends ApiError {
   constructor() {
-    super(409, 'application id already in use');
-    this.name = 'ApplicationIDConflict';
+    super(409, 'application external id already in use');
+    this.name = 'ApplicationExternalIdConflict';
   }
 }
 
