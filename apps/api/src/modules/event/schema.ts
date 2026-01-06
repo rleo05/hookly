@@ -1,7 +1,7 @@
+import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { ApiError } from '../../shared/errors.js';
 import type { PaginationResult } from '../../shared/schema.js';
-import { Prisma } from '@prisma/client';
 
 export const createEventTypeSchema = z.object({
   name: z.string().min(1).max(100),

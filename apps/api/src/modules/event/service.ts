@@ -6,6 +6,7 @@ import { findApplicationByUidAndUser } from '../application/service.js';
 import {
   type CreateEvent,
   type CreateEventType,
+  EventExternalIdConflict,
   type EventItem,
   type EventList,
   EventNotFound,
@@ -15,7 +16,6 @@ import {
   type EventTypesList,
   type ListEventQuery,
   type UpdateEventType,
-  EventExternalIdConflict,
 } from './schema.js';
 
 // event types
@@ -290,7 +290,7 @@ export async function createEvent(
       externalId: event.externalId ?? undefined,
       eventType: event.eventType,
       payload: event.payload,
-      createdAt: event.createdAt
+      createdAt: event.createdAt,
     };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {

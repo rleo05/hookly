@@ -11,7 +11,11 @@ export type CreateApplication = z.infer<typeof createApplicationSchema>;
 
 export const applicationItemSchema = z.object({
   uid: z.string(),
-  externalId: z.string().min(1).nullable().transform((v) => v ?? undefined),
+  externalId: z
+    .string()
+    .min(1)
+    .nullable()
+    .transform((v) => v ?? undefined),
   name: z.string(),
   createdAt: z.date(),
 });

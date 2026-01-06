@@ -11,6 +11,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string(),
   BETTER_AUTH_SECRET: z.string(),
   API_KEY_SECRET: z.string(),
+  REDIS_URL: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

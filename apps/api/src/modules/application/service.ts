@@ -4,16 +4,19 @@ import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import {
   ApplicationExternalIdConflict,
+  type ApplicationItem,
   type ApplicationList,
   ApplicationNotFound,
   type CreateApplication,
   type UpdateApplication,
-  type ApplicationItem,
 } from './schema.js';
 
 const nanoidPrefix = 'app_';
 
-export async function create(userId: string, { name, externalId }: CreateApplication): Promise<ApplicationItem> {
+export async function create(
+  userId: string,
+  { name, externalId }: CreateApplication,
+): Promise<ApplicationItem> {
   try {
     const uid = `${nanoidPrefix}${generateNanoId()}`;
     const app = await prisma.application.create({
@@ -43,7 +46,7 @@ export async function list(userId: string, pagination: Pagination): Promise<Appl
   const wherePagination = {
     userId,
     deletedAt: null,
-  }
+  };
   const [apps, total] = await prisma.$transaction([
     prisma.application.findMany({
       where: wherePagination,

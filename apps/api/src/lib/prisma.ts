@@ -18,4 +18,8 @@ export async function pingDatabase() {
   await prisma.$queryRaw`SELECT 1`;
 }
 
+export async function shutdownDatabase() {
+  await prisma.$disconnect();
+}
+
 export default prisma;

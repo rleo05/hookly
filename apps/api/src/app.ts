@@ -6,7 +6,8 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { env } from './config/env.js';
-import { pingDatabase } from './lib/prisma.js';
+import { pingDatabase, shutdownDatabase } from './lib/prisma.js';
+import { initRedis, shutdownRedis } from './lib/redis.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
 import { authRoutes } from './modules/auth/routes.js';
@@ -31,6 +32,10 @@ fastify.register(cors, {
 
 fastify.setErrorHandler(globalErrorHandler);
 
+fastify.addHook('onClose', async () => {
+  await Promise.all([shutdownRedis(), shutdownDatabase()]);
+});
+
 fastify.register(authPlugin);
 fastify.register(apiKeyPlugin);
 
@@ -44,13 +49,22 @@ fastify.register(eventRoutes);
 const start = async () => {
   try {
     await pingDatabase();
+    await initRedis();
     await fastify.listen({
       port: env.PORT,
       host: '0.0.0.0',
     });
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
   }
 };
 start();
+
+async function shutdown() {
+  await fastify.close();
+  process.exit(0);
+}
