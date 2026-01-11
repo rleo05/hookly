@@ -17,6 +17,7 @@ import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
 import { globalErrorHandler } from './shared/errors.js';
+import idempotencyKeyPlugin from './plugin/idempotency-key.js';
 
 const fastify = Fastify({
   logger: true,
@@ -38,6 +39,7 @@ fastify.addHook('onClose', async () => {
 
 fastify.register(authPlugin);
 fastify.register(apiKeyPlugin);
+fastify.register(idempotencyKeyPlugin);
 
 fastify.register(authRoutes, { prefix: '/auth' });
 fastify.register(userRoutes, { prefix: '/user' });

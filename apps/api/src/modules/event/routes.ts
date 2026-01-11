@@ -138,10 +138,13 @@ export default function eventRoutes(fastify: FastifyInstance) {
           schema: {
             body: createEventSchema,
           },
+          preHandler: fastify.idempotencyKeyPreHandler,
+          onSend: [fastify.idempotencyKeyOnSend],
         },
         async (request, reply) => {
+          if (reply.sent) return;
           const event = await eventService.createEvent(request.user!.id, request.body);
-          reply.status(202).send(event);
+          return reply.status(202).send(event);
         },
       );
     },
