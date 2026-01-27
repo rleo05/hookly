@@ -17,6 +17,8 @@ import {
   type ListEventQuery,
   type UpdateEventType,
 } from './schema.js';
+import { rabbitService } from '../../queue/service.js';
+import { webhookProducer } from '../../queue/producers/webhook-producer.js';
 
 // event types
 
@@ -276,12 +278,19 @@ export async function createEvent(
         payload,
       },
       select: {
+        id: true,
         uid: true,
         eventType: true,
         externalId: true,
         payload: true,
         createdAt: true,
       },
+    });
+
+    const result = await webhookProducer.insertEvent({
+        eventId: event.id,
+        applicationUid,
+        eventType,
     });
 
     return {

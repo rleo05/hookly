@@ -24,6 +24,19 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: webhook-orchestrator-rabbitmq
+    hostname: webhook-orchestrator-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:

@@ -18,6 +18,8 @@ import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
 import { globalErrorHandler } from './shared/errors.js';
 import idempotencyKeyPlugin from './plugin/idempotency-key.js';
+import { rabbitService } from './queue/service.js';
+import { webhookProducer } from './queue/producers/webhook-producer.js';
 
 const fastify = Fastify({
   logger: true,
@@ -34,7 +36,7 @@ fastify.register(cors, {
 fastify.setErrorHandler(globalErrorHandler);
 
 fastify.addHook('onClose', async () => {
-  await Promise.all([shutdownRedis(), shutdownDatabase()]);
+  await Promise.all([shutdownRedis(), shutdownDatabase(), rabbitService.shutdown()]);
 });
 
 fastify.register(authPlugin);
@@ -52,6 +54,8 @@ const start = async () => {
   try {
     await pingDatabase();
     await initRedis();
+    await rabbitService.init();
+    await webhookProducer.init();
     await fastify.listen({
       port: env.PORT,
       host: '0.0.0.0',
