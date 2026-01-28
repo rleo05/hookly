@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "prisma generate && tsc",
+    "build": "tsc",
     "start": "node dist/app.js",
     "lint": "biome check src",
     "lint:fix": "biome check --write src",
@@ -11,22 +11,17 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.1.0",
-    "amqplib": "^0.10.9",
+    "@webhook-orchestrator/database": "*",
+    "@webhook-orchestrator/queue": "*",
     "better-auth": "^1.4.9",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
     "fastify-type-provider-zod": "^6.1.0",
     "nanoid": "^5.1.6",
-    "pg": "^8.16.3",
     "redis": "^5.10.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.8",
-    "@types/pg": "^8.16.0",
-    "prisma": "^6.19.2",
     "tsx": "^4.21.0"
   }
 }

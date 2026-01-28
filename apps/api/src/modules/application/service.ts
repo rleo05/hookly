@@ -1,5 +1,4 @@
-import { Prisma } from '@prisma/client';
-import prisma from '../../lib/prisma.js';
+import { Prisma, prisma } from '@webhook-orchestrator/database';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import {

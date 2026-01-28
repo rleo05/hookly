@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
-import { Prisma } from '@prisma/client';
+import { Prisma, prisma } from '@webhook-orchestrator/database';
 import { env } from '../../config/env.js';
-import prisma from '../../lib/prisma.js';
 import type { Pagination } from '../../shared/schema.js';
 import {
   ApiKeyLimitError,

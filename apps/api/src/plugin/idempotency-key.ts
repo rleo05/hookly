@@ -1,14 +1,21 @@
-import type { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
+import crypto from 'node:crypto';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { redis } from '../lib/redis.js';
-import { CreateEvent } from '../modules/event/schema.js'
-import crypto from 'node:crypto';
+import type { CreateEvent } from '../modules/event/schema.js';
 import { ApiError } from '../shared/errors.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    idempotencyKeyPreHandler: (request: FastifyRequest<{ Body: CreateEvent }>, reply: FastifyReply) => Promise<FastifyReply | void>;
-    idempotencyKeyOnSend: (request: FastifyRequest, reply: FastifyReply, payload: unknown) => Promise<unknown>;
+    idempotencyKeyPreHandler: (
+      request: FastifyRequest<{ Body: CreateEvent }>,
+      reply: FastifyReply,
+    ) => Promise<FastifyReply | void>;
+    idempotencyKeyOnSend: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      payload: unknown,
+    ) => Promise<unknown>;
   }
 }
 
@@ -19,10 +26,13 @@ type IdempotencyData = {
   hashedPayload: string;
   statusCode: number;
   body: any;
-}
+};
 
 export const idempotencyKeyPlugin = fp(async (fastify: FastifyInstance) => {
-  const idempotencyKeyPreHandler = async (request: FastifyRequest<{ Body: CreateEvent }>, reply: FastifyReply) => {
+  const idempotencyKeyPreHandler = async (
+    request: FastifyRequest<{ Body: CreateEvent }>,
+    reply: FastifyReply,
+  ) => {
     const idempotencyKey = request.headers['idempotency-key'];
     if (!idempotencyKey) {
       return;
@@ -48,11 +58,19 @@ export const idempotencyKeyPlugin = fp(async (fastify: FastifyInstance) => {
       return reply;
     }
 
-    await redis.set(redisKey, JSON.stringify({ status: 'PROCESSING', hashedPayload: hashedPayload }), { EX: IDEMPOTENCY_KEY_TTL, NX: true });
+    await redis.set(
+      redisKey,
+      JSON.stringify({ status: 'PROCESSING', hashedPayload: hashedPayload }),
+      { EX: IDEMPOTENCY_KEY_TTL, NX: true },
+    );
     (request as any).idempotencyKey = redisKey;
   };
 
-  const idempotencyKeyOnSend = async (request: FastifyRequest, reply: FastifyReply, payload: unknown): Promise<unknown> => {
+  const idempotencyKeyOnSend = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    payload: unknown,
+  ): Promise<unknown> => {
     if ((request as any).idempotencyOnSendDone) {
       return payload;
     }
@@ -77,7 +95,16 @@ export const idempotencyKeyPlugin = fp(async (fastify: FastifyInstance) => {
 
     const currentHash = generateHash(request.body);
 
-    await redis.set(redisKey, JSON.stringify({ status: 'COMPLETED', hashedPayload: currentHash, statusCode: reply.statusCode, body: body }), { KEEPTTL: true });
+    await redis.set(
+      redisKey,
+      JSON.stringify({
+        status: 'COMPLETED',
+        hashedPayload: currentHash,
+        statusCode: reply.statusCode,
+        body: body,
+      }),
+      { KEEPTTL: true },
+    );
 
     return payload;
   };
@@ -98,11 +125,15 @@ const sortPayload = (payload: any): any => {
 };
 
 const generateHash = (payload: any): string => {
-  const sortedPayload = sortPayload({ applicationUid: payload.applicationUid, eventType: payload.eventType, payload: payload.payload });
+  const sortedPayload = sortPayload({
+    applicationUid: payload.applicationUid,
+    eventType: payload.eventType,
+    payload: payload.payload,
+  });
   const stringPayload = JSON.stringify(sortedPayload);
   const hashedPayload = crypto.createHash('sha256').update(stringPayload).digest('hex');
   return hashedPayload;
-}
+};
 
 export class IdempotencyKeyConflict extends ApiError {
   constructor() {

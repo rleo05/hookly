@@ -1,4 +1,6 @@
 import cors from '@fastify/cors';
+import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
+import { rabbitService } from '@webhook-orchestrator/queue';
 import Fastify from 'fastify';
 import {
   serializerCompiler,
@@ -6,7 +8,6 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { env } from './config/env.js';
-import { pingDatabase, shutdownDatabase } from './lib/prisma.js';
 import { initRedis, shutdownRedis } from './lib/redis.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
@@ -16,10 +17,9 @@ import eventRoutes from './modules/event/routes.js';
 import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
-import { globalErrorHandler } from './shared/errors.js';
 import idempotencyKeyPlugin from './plugin/idempotency-key.js';
-import { rabbitService } from './queue/service.js';
 import { webhookProducer } from './queue/producers/webhook-producer.js';
+import { globalErrorHandler } from './shared/errors.js';
 
 const fastify = Fastify({
   logger: true,
@@ -54,8 +54,9 @@ const start = async () => {
   try {
     await pingDatabase();
     await initRedis();
-    await rabbitService.init();
+    await rabbitService.init({ url: env.RABBITMQ_URL });
     await webhookProducer.init();
+
     await fastify.listen({
       port: env.PORT,
       host: '0.0.0.0',

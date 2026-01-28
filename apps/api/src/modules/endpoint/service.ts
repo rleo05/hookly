@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import prisma from '../../lib/prisma.js';
+import { prisma } from '@webhook-orchestrator/database';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
 import { checkExistingEventTypes, normalizeEventTypeName } from '../event/service.js';

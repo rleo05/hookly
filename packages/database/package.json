@@ -1,0 +1,30 @@
+{
+    "name": "@webhook-orchestrator/database",
+    "version": "0.0.1",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "npm run db:generate && tsc",
+        "db:generate": "prisma generate",
+        "db:push": "prisma db push",
+        "db:migrate": "prisma migrate dev",
+        "type-check": "tsc --noEmit"
+    },
+    "prisma": {
+        "schema": "prisma/schema"
+    },
+    "dependencies": {
+        "@prisma/client": "^6.19.2"
+    },
+    "devDependencies": {
+        "prisma": "^6.19.2",
+        "typescript": "^5.9.3"
+    }
+}

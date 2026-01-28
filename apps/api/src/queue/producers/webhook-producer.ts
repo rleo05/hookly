@@ -1,56 +1,54 @@
-import { rabbitService } from "../service.js";
-import { ConfirmChannel } from "amqplib";
-import { QUEUES } from "../constants.js";
+import type { ConfirmChannel } from '@webhook-orchestrator/queue';
+import { QUEUES, rabbitService } from '@webhook-orchestrator/queue';
 
 type InsertEventPayload = {
-    eventId: string;
-    applicationUid: string;
-    eventType: string;
-}
+  eventId: string;
+  applicationUid: string;
+  eventType: string;
+};
 
 class WebhookProducer {
-    public channel: ConfirmChannel | null = null;
-    private isInitializing: Promise<ConfirmChannel> | null = null;
+  public channel: ConfirmChannel | null = null;
+  private isInitializing: Promise<ConfirmChannel> | null = null;
 
-    constructor() {}
+  constructor() {}
 
-    async init() {
-        await this.getChannel();
+  async init() {
+    await this.getChannel();
+  }
+
+  private async getChannel() {
+    if (this.channel) return this.channel;
+
+    if (!this.isInitializing) {
+      this.isInitializing = rabbitService
+        .createChannel()
+        .then((chan) => {
+          this.channel = chan;
+
+          this.channel.on('error', (err: Error) => {
+            console.error('webhook producer channel error', err);
+            this.channel = null;
+            this.isInitializing = null;
+          });
+
+          return chan;
+        })
+        .catch((err) => {
+          console.error('webhook producer channel initialization failed', err);
+          this.isInitializing = null;
+          throw err;
+        });
     }
 
-    private async getChannel() {
-        if (this.channel) return this.channel;
-        
-        if(!this.isInitializing) {
-            this.isInitializing = rabbitService.createChannel().then((chan) => {
-                this.channel = chan;
-                
-                this.channel.on('error', (err: Error) => {
-                    console.error('webhook producer channel error', err);
-                    this.channel = null;
-                    this.isInitializing = null;
-                });
+    return this.isInitializing;
+  }
 
-                return chan;
-            }).catch(err => {
-                console.error('webhook producer channel initialization failed', err);
-                this.isInitializing = null;
-                throw err;
-            });
-        }
+  async insertEvent(payload: InsertEventPayload) {
+    const channel = await this.getChannel();
 
-        return this.isInitializing;
-    }
-    
-    async insertEvent(payload: InsertEventPayload) {
-        const channel = await this.getChannel();
-       
-        rabbitService.publish(
-            QUEUES.WEBHOOK_DISPATCH.name,
-            channel,
-            payload,
-        );
-    }
+    rabbitService.publish(QUEUES.WEBHOOK_DISPATCH.name, channel, payload);
+  }
 }
 
 export const webhookProducer = new WebhookProducer();

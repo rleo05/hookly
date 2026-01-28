@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import prisma from '../../lib/prisma.js';
+import { Prisma, prisma } from '@webhook-orchestrator/database';
+import { webhookProducer } from '../../queue/producers/webhook-producer.js';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
@@ -17,8 +17,6 @@ import {
   type ListEventQuery,
   type UpdateEventType,
 } from './schema.js';
-import { rabbitService } from '../../queue/service.js';
-import { webhookProducer } from '../../queue/producers/webhook-producer.js';
 
 // event types
 
@@ -288,9 +286,9 @@ export async function createEvent(
     });
 
     const result = await webhookProducer.insertEvent({
-        eventId: event.id,
-        applicationUid,
-        eventType,
+      eventId: event.id,
+      applicationUid,
+      eventType,
     });
 
     return {

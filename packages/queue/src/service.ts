@@ -1,29 +1,39 @@
-import amqp, { type ConsumeMessage, type Channel, type ChannelModel, ConfirmChannel, Options } from 'amqplib';
-import { env } from '../config/env.js';
+import amqp, {
+    type ConsumeMessage,
+    type ChannelModel,
+    type ConfirmChannel,
+    type Options,
+} from 'amqplib';
 import { QUEUES } from './constants.js';
 
 const RECONNECT_MAX_ATTEMPTS = 5;
 
-type MessageHandler = (content: unknown, message: ConsumeMessage) => Promise<void> | void;
+export type MessageHandler = (content: unknown, message: ConsumeMessage) => Promise<void> | void;
 
-type ConsumerOptions = Options.Consume & {
+export type ConsumerOptions = Options.Consume & {
     prefetch?: number;
-}
+};
+
+export type RabbitConfig = {
+    url: string;
+};
 
 export class RabbitService {
     private connection: ChannelModel | null = null;
     private retryCount = 0;
     private isShuttingDown = false;
+    private config: RabbitConfig | null = null;
 
     constructor() { }
 
-    async init(): Promise<void> {
+    async init(config: RabbitConfig): Promise<void> {
+        this.config = config;
         console.log('rabbitmq client connecting...');
         await this.connect();
         await this.createQueues();
     }
 
-    async createQueues() {
+    async createQueues(): Promise<void> {
         if (!this.connection) {
             throw new Error('rabbitmq connection not initialized');
         }
@@ -40,8 +50,8 @@ export class RabbitService {
                     ...finalOptions,
                     arguments: {
                         'x-dead-letter-exchange': '',
-                        'x-dead-letter-routing-key': dlqName
-                    }
+                        'x-dead-letter-routing-key': dlqName,
+                    },
                 };
             }
 
@@ -51,10 +61,13 @@ export class RabbitService {
     }
 
     private async connect(): Promise<void> {
-        this.connection = await amqp.connect(env.RABBITMQ_URL);
+        if (!this.config) {
+            throw new Error('RabbitService not initialized. Call init() first.');
+        }
+
+        this.connection = await amqp.connect(this.config.url);
         const channel = await this.connection.createChannel();
         try {
-
             console.log('rabbitmq client connected');
             this.retryCount = 0;
 
@@ -85,7 +98,9 @@ export class RabbitService {
 
         this.retryCount++;
         const delay = Math.min(this.retryCount * 500, 3000);
-        console.log(`rabbitmq reconnecting in ${delay}ms (attempt ${this.retryCount}/${RECONNECT_MAX_ATTEMPTS})`);
+        console.log(
+            `rabbitmq reconnecting in ${delay}ms (attempt ${this.retryCount}/${RECONNECT_MAX_ATTEMPTS})`
+        );
 
         await new Promise((resolve) => setTimeout(resolve, delay));
         await this.connect();
@@ -96,15 +111,11 @@ export class RabbitService {
         channel: ConfirmChannel,
         message: Record<string, unknown>,
         options?: Options.Publish
-    ) {
-        channel.sendToQueue(
-            queue,
-            Buffer.from(JSON.stringify(message)),
-            {
-                persistent: options?.persistent ?? true,
-                contentType: 'application/json',
-            }
-        );
+    ): void {
+        channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+            persistent: options?.persistent ?? true,
+            contentType: 'application/json',
+        });
 
         channel.waitForConfirms();
     }
@@ -164,5 +175,3 @@ export class RabbitService {
         return this.connection.createConfirmChannel();
     }
 }
-
-export const rabbitService = new RabbitService();
