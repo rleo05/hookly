@@ -35,7 +35,7 @@ fastify.register(cors, {
 fastify.setErrorHandler(globalErrorHandler);
 
 fastify.addHook('onClose', async () => {
-  await Promise.all([shutdownRedis(), shutdownDatabase(), rabbitService.shutdown()]);
+  await Promise.allSettled([shutdownRedis(), shutdownDatabase(), rabbitService.shutdown()]);
 });
 
 fastify.register(authPlugin);

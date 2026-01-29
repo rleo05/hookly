@@ -111,7 +111,7 @@ export class RabbitService {
         channel: ConfirmChannel,
         message: Record<string, unknown>,
         options?: Options.Publish
-    ): void {
+    ) {
         channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
             persistent: options?.persistent ?? true,
             contentType: 'application/json',
