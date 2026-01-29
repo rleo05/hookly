@@ -1,10 +1,10 @@
+import { env } from '@webhook-orchestrator/env';
 import { createClient, type RedisClientType } from 'redis';
-import { env } from '../config/env.js';
 
 const MAX_RETRIES = 5;
 
 export const redis: RedisClientType = createClient({
-  url: env.REDIS_URL,
+  url: env.redis.REDIS_URL,
   socket: {
     reconnectStrategy: (retries) => {
       if (retries >= MAX_RETRIES) {

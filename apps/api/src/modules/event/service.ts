@@ -1,5 +1,5 @@
 import { Prisma, prisma } from '@webhook-orchestrator/database';
-import { webhookProducer } from '../../queue/producers/webhook-producer.js';
+import { webhookProducer } from '@webhook-orchestrator/queue';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';

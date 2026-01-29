@@ -62,7 +62,7 @@ export class RabbitService {
 
     private async connect(): Promise<void> {
         if (!this.config) {
-            throw new Error('RabbitService not initialized. Call init() first.');
+            throw new Error('rabbitmq client not initialized. Call init() first.');
         }
 
         this.connection = await amqp.connect(this.config.url);

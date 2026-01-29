@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { Prisma, prisma } from '@webhook-orchestrator/database';
-import { env } from '../../config/env.js';
+import { env } from '@webhook-orchestrator/env';
 import type { Pagination } from '../../shared/schema.js';
 import {
   ApiKeyLimitError,
@@ -27,7 +27,10 @@ export async function create({ name, userId }: CreateApiKeyParams): Promise<ApiK
     const secret = crypto.randomBytes(32).toString('hex');
 
     try {
-      const keyHash = crypto.createHmac('sha256', env.API_KEY_SECRET).update(secret).digest('hex');
+      const keyHash = crypto
+        .createHmac('sha256', env.auth.API_KEY_SECRET)
+        .update(secret)
+        .digest('hex');
 
       const apiKey = await prisma.apiKey.create({
         data: { name, keyHash, keyId, userId },
@@ -126,7 +129,7 @@ export async function validate(key: string) {
   }
 
   const keyHashRequest = crypto
-    .createHmac('sha256', env.API_KEY_SECRET)
+    .createHmac('sha256', env.auth.API_KEY_SECRET)
     .update(secret)
     .digest('hex');
 

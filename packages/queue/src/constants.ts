@@ -1,4 +1,5 @@
 import type { Options } from 'amqplib';
+import { z } from 'zod';
 
 export interface QueueDefinition {
     name: string;
@@ -20,3 +21,12 @@ export const QUEUES = {
 } as const satisfies Record<string, QueueDefinition>;
 
 export type QueueName = keyof typeof QUEUES;
+
+export const webhookInsertPayloadSchema = z.object({
+  eventId: z.string(),
+  applicationUid: z.string(),
+  eventType: z.string(),
+});
+
+export type InsertEventPayload = z.infer<typeof webhookInsertPayloadSchema>;
+

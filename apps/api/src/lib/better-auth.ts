@@ -1,21 +1,21 @@
 import { prisma } from '@webhook-orchestrator/database';
+import { env } from '@webhook-orchestrator/env';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { env } from '../config/env.js';
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
-  trustedOrigins: [env.FRONTEND_URL, 'http://localhost:5500'],
+  trustedOrigins: [env.server.FRONTEND_URL, 'http://localhost:5500'],
   basePath: '/auth',
-  secret: env.BETTER_AUTH_SECRET,
+  secret: env.auth.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
   },
   socialProviders: {
     google: {
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      clientId: env.auth.GOOGLE_CLIENT_ID,
+      clientSecret: env.auth.GOOGLE_CLIENT_SECRET,
     },
   },
   user: {

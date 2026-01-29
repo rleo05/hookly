@@ -1,5 +1,5 @@
 {
-    "name": "@webhook-orchestrator/queue",
+    "name": "@webhook-orchestrator/env",
     "version": "0.0.1",
     "type": "module",
     "main": "./dist/index.js",
@@ -15,11 +15,10 @@
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
-        "amqplib": "^0.10.9",
-        "zod": "^4.3.6"
+        "dotenv": "^16.5.0",
+        "zod": "^3.25.56"
     },
     "devDependencies": {
-        "@types/amqplib": "^0.10.8",
         "typescript": "^5.9.3"
     }
 }

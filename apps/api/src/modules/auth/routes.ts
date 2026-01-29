@@ -1,5 +1,5 @@
+import { env } from '@webhook-orchestrator/env';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { env } from '../../config/env.js';
 import { auth } from '../../lib/better-auth.js';
 
 export async function authRoutes(fastify: FastifyInstance) {
@@ -8,7 +8,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     url: '/*',
     async handler(request: FastifyRequest, reply: FastifyReply) {
       try {
-        const url = new URL(request.url, `${env.APP_URL}`);
+        const url = new URL(request.url, `${env.server.APP_URL}`);
 
         const headers = new Headers();
         for (const [key, value] of Object.entries(request.headers)) {

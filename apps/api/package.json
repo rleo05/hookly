@@ -12,6 +12,7 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@webhook-orchestrator/database": "*",
+    "@webhook-orchestrator/env": "*",
     "@webhook-orchestrator/queue": "*",
     "better-auth": "^1.4.9",
     "dotenv": "^17.2.3",

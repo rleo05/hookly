@@ -1,13 +1,13 @@
 import cors from '@fastify/cors';
 import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
-import { rabbitService } from '@webhook-orchestrator/queue';
+import { env } from '@webhook-orchestrator/env';
+import { rabbitService, webhookProducer } from '@webhook-orchestrator/queue';
 import Fastify from 'fastify';
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
-import { env } from './config/env.js';
 import { initRedis, shutdownRedis } from './lib/redis.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
@@ -18,7 +18,6 @@ import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
 import idempotencyKeyPlugin from './plugin/idempotency-key.js';
-import { webhookProducer } from './queue/producers/webhook-producer.js';
 import { globalErrorHandler } from './shared/errors.js';
 
 const fastify = Fastify({
@@ -54,11 +53,10 @@ const start = async () => {
   try {
     await pingDatabase();
     await initRedis();
-    await rabbitService.init({ url: env.RABBITMQ_URL });
-    await webhookProducer.init();
+    await rabbitService.init({ url: env.rabbitmq.RABBITMQ_URL });
 
     await fastify.listen({
-      port: env.PORT,
+      port: env.server.PORT,
       host: '0.0.0.0',
     });
 

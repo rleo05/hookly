@@ -1,21 +1,13 @@
-import type { ConfirmChannel } from '@webhook-orchestrator/queue';
-import { QUEUES, rabbitService } from '@webhook-orchestrator/queue';
+import { rabbitService } from '../index.js';
+import type { InsertEventPayload } from '../constants.js';
+import type { ConfirmChannel } from 'amqplib';
+import { QUEUES } from '../constants.js';
 
-type InsertEventPayload = {
-  eventId: string;
-  applicationUid: string;
-  eventType: string;
-};
-
-class WebhookProducer {
+export class WebhookProducer {
   public channel: ConfirmChannel | null = null;
   private isInitializing: Promise<ConfirmChannel> | null = null;
 
   constructor() {}
-
-  async init() {
-    await this.getChannel();
-  }
 
   private async getChannel() {
     if (this.channel) return this.channel;
@@ -50,5 +42,3 @@ class WebhookProducer {
     rabbitService.publish(QUEUES.WEBHOOK_DISPATCH.name, channel, payload);
   }
 }
-
-export const webhookProducer = new WebhookProducer();
