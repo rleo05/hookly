@@ -2,7 +2,7 @@ import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
 import { rabbitService } from '@webhook-orchestrator/queue';
 import { webhookConsumer } from '@webhook-orchestrator/queue';
-import { helloWorld } from './service.js';
+import { processWebhookMessage } from './service.js';
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
@@ -21,7 +21,7 @@ const start = async () => {
     try {
         await pingDatabase();
         await rabbitService.init({ url: env.rabbitmq.RABBITMQ_URL });
-        await webhookConsumer.start(helloWorld);
+        await webhookConsumer.start(processWebhookMessage);
     } catch (err) {
         console.error('worker dispatcher failed to initialize', err);
         process.exit(1);

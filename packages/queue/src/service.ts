@@ -44,18 +44,23 @@ export class RabbitService {
             let finalOptions: Options.AssertQueue = { ...queue.options };
 
             if (queue.dlq) {
-                const dlqName = `${queue.name}_dlq`;
-                await channel.assertQueue(dlqName, { durable: true });
+                await channel.assertQueue(queue.dlq.name, queue.dlq.options);
                 finalOptions = {
                     ...finalOptions,
-                    arguments: {
-                        'x-dead-letter-exchange': '',
-                        'x-dead-letter-routing-key': dlqName,
-                    },
+                    deadLetterExchange: '',
+                    deadLetterRoutingKey: queue.dlq.name,
                 };
             }
 
             await channel.assertQueue(queue.name, finalOptions);
+
+            if (queue.retryQueue) {
+                await channel.assertQueue(queue.retryQueue.name, {
+                    ...queue.retryQueue.options,
+                    deadLetterExchange: '',
+                    deadLetterRoutingKey: queue.name,
+                });
+            }
         }
         await channel.close();
     }

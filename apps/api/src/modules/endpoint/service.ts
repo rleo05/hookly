@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { prisma } from '@webhook-orchestrator/database';
+import { Prisma, prisma } from '@webhook-orchestrator/database';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
 import { checkExistingEventTypes, normalizeEventTypeName } from '../event/service.js';
@@ -16,9 +16,35 @@ import {
 const ID_PREFIX = 'end_';
 const SECRET_PREFIX = 'whsec_';
 
+type PrismaEndpointResult = {
+  uid: string;
+  url: string;
+  method: string;
+  headers: Prisma.JsonValue;
+  description: string | null;
+  eventTypes: string[];
+  createdAt: Date;
+  isActive: boolean;
+};
+
+function toEndpointItem(endpoint: PrismaEndpointResult): EndpointItem {
+  return {
+    uid: endpoint.uid,
+    request: {
+      url: endpoint.url,
+      method: endpoint.method,
+      ...(endpoint.headers && { headers: endpoint.headers }),
+    },
+    description: endpoint.description,
+    eventTypes: endpoint.eventTypes,
+    createdAt: endpoint.createdAt,
+    isActive: endpoint.isActive,
+  };
+}
+
 export async function create(
   userId: string,
-  { applicationUid, url, description, eventTypes, secret, isActive }: CreateEndpoint,
+  { applicationUid, request, description, eventTypes, secret, isActive }: CreateEndpoint,
 ): Promise<EndpointResponse> {
   const applicationId = await findApplicationByUidAndUser(applicationUid, userId);
 
@@ -35,7 +61,9 @@ export async function create(
     data: {
       uid,
       applicationId,
-      url,
+      url: request.url,
+      method: request.method ?? 'POST',
+      headers: request.headers ?? Prisma.JsonNull,
       description: description ?? null,
       eventTypes: normalizedEventTypes,
       secret: plainSecret,
@@ -44,6 +72,8 @@ export async function create(
     select: {
       uid: true,
       url: true,
+      method: true,
+      headers: true,
       description: true,
       eventTypes: true,
       createdAt: true,
@@ -52,7 +82,7 @@ export async function create(
   });
 
   return {
-    ...endpoint,
+    ...toEndpointItem(endpoint),
     secret: plainSecret,
   };
 }
@@ -70,6 +100,8 @@ export async function get(userId: string, id: string): Promise<EndpointItem> {
     select: {
       uid: true,
       url: true,
+      method: true,
+      headers: true,
       description: true,
       eventTypes: true,
       createdAt: true,
@@ -81,7 +113,7 @@ export async function get(userId: string, id: string): Promise<EndpointItem> {
     throw new EndpointNotFound();
   }
 
-  return endpoint;
+  return toEndpointItem(endpoint);
 }
 
 export async function list(userId: string, query: ListEndpointQuery): Promise<EndpointList> {
@@ -100,6 +132,8 @@ export async function list(userId: string, query: ListEndpointQuery): Promise<En
       select: {
         uid: true,
         url: true,
+        method: true,
+        headers: true,
         description: true,
         eventTypes: true,
         createdAt: true,
@@ -113,7 +147,7 @@ export async function list(userId: string, query: ListEndpointQuery): Promise<En
   ]);
 
   return {
-    endpoints,
+    endpoints: endpoints.map(toEndpointItem),
     pagination: {
       page: query.page,
       size: query.size,
@@ -126,7 +160,7 @@ export async function list(userId: string, query: ListEndpointQuery): Promise<En
 export async function update(
   userId: string,
   id: string,
-  { url, description, eventTypes, secret, isActive }: UpdateEndpoint,
+  { request, description, eventTypes, secret, isActive }: UpdateEndpoint,
 ) {
   const existingEndpoint = await prisma.endpoint.findFirst({
     where: {
@@ -153,7 +187,9 @@ export async function update(
   const updatedEndpoint = await prisma.endpoint.update({
     where: { id: existingEndpoint.id },
     data: {
-      ...(url && { url }),
+      ...(request.url && { url: request.url }),
+      ...(request.method && { method: request.method }),
+      ...(request.headers && { headers: request.headers }),
       ...(description !== undefined && { description }),
       ...(eventTypes !== undefined && { eventTypes: normalizedEventTypes }),
       ...(secret && { secret }),
@@ -163,20 +199,23 @@ export async function update(
       uid: true,
       url: true,
       description: true,
+      method: true,
+      headers: true,
       eventTypes: true,
       createdAt: true,
       isActive: true,
     },
   });
 
+
   if (secret) {
     return {
-      ...updatedEndpoint,
+      ...toEndpointItem(updatedEndpoint),
       secret,
     };
   }
 
-  return updatedEndpoint;
+  return toEndpointItem(updatedEndpoint);
 }
 
 export async function remove(userId: string, id: string) {

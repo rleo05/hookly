@@ -17,9 +17,6 @@
         "db:migrate": "prisma migrate dev",
         "type-check": "tsc --noEmit"
     },
-    "prisma": {
-        "schema": "prisma/schema"
-    },
     "dependencies": {
         "@prisma/client": "^6.19.2"
     },

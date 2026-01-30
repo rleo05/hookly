@@ -3,28 +3,49 @@ import { z } from 'zod';
 
 export interface QueueDefinition {
     name: string;
-    dlq?: boolean;
+    dlq?: Dlq;
     options?: Options.AssertQueue;
-    retryQueue?: boolean;
+    retryQueue?: RetryQueue;
 }
 
-export const QUEUES = {
+type Dlq = {
+    name: string;
+    options?: Options.AssertQueue;
+}
+
+type RetryQueue = {
+    name: string;
+    options?: Options.AssertQueue;
+}
+
+export const QUEUES: Record<string, QueueDefinition> = {
     WEBHOOK_DISPATCH: {
         name: 'webhook.dispatch.queue',
         options: {
             durable: true,
             maxPriority: 10,
         },
-        dlq: true,
-        retryQueue: true,
+        dlq: {
+            name: 'webhook.dispatch.dlq',
+            options: {
+                durable: true,
+            }
+        },
+        retryQueue: {
+            name: 'webhook.dispatch.retry',
+            options: {
+                durable: true,
+                messageTtl: 30000
+            }
+        },
     },
-} as const satisfies Record<string, QueueDefinition>;
+};
 
 export type QueueName = keyof typeof QUEUES;
 
 export const webhookInsertPayloadSchema = z.object({
   eventId: z.string(),
-  applicationUid: z.string(),
+  applicationId: z.string(),
   eventType: z.string(),
 });
 

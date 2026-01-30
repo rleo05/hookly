@@ -22,6 +22,8 @@ model Endpoint {
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   url         String
+  method      String
+  headers     Json?
   description String?
   secret      String
 

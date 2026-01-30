@@ -285,9 +285,9 @@ export async function createEvent(
       },
     });
 
-    const result = await webhookProducer.insertEvent({
+    await webhookProducer.insertEvent({
       eventId: event.id,
-      applicationUid,
+      applicationId: appId,
       eventType,
     });
 
