@@ -7,7 +7,7 @@ export class WebhookProducer {
   public channel: ConfirmChannel | null = null;
   private isInitializing: Promise<ConfirmChannel> | null = null;
 
-  constructor() {}
+  constructor() { }
 
   private async getChannel() {
     if (this.channel) return this.channel;
@@ -39,20 +39,20 @@ export class WebhookProducer {
   async insertEvent(payload: InsertEventPayload) {
     const channel = await this.getChannel();
 
-    rabbitService.publish(QUEUES.WEBHOOK_DISPATCH.name, channel, payload);
+    rabbitService.publish(QUEUES.WEBHOOK_FANOUT.name, channel, payload);
   }
 
   async insertToRetryQueue(payload: InsertEventPayload, priority: number, ttl: number) {
     const channel = await this.getChannel();
 
-    if (!QUEUES.WEBHOOK_DISPATCH.retryQueue) {
+    if (!QUEUES.WEBHOOK_FANOUT.retryQueue) {
       throw new Error('webhook dispatch retry queue not defined');
     }
 
-    if (priority < 0 || priority > QUEUES.WEBHOOK_DISPATCH.options.maxPriority) {
-      priority = QUEUES.WEBHOOK_DISPATCH.options.maxPriority;
+    if (priority < 0 || priority > QUEUES.WEBHOOK_FANOUT.options.maxPriority) {
+      priority = QUEUES.WEBHOOK_FANOUT.options.maxPriority;
     }
 
-    rabbitService.publish(QUEUES.WEBHOOK_DISPATCH.retryQueue.name, channel, payload, {priority: priority, expiration: ttl});
+    rabbitService.publish(QUEUES.WEBHOOK_FANOUT.retryQueue.name, channel, payload, { priority: priority, expiration: ttl });
   }
 }

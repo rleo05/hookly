@@ -1,6 +1,6 @@
 import { RabbitService } from './service.js';
-import { WebhookProducer } from './producers/webhook-producer.js';
-import { WebhookConsumer } from './consumers/webhook-consumer.js';
+import { WebhookProducer } from './producers/webhook-fanout-producer.js';
+import { WebhookConsumer } from './consumers/webhook-fanout-consumer.js';
 
 export const rabbitService = new RabbitService();
 export const webhookProducer = new WebhookProducer();

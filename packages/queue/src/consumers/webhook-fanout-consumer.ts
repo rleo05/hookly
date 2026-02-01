@@ -9,7 +9,7 @@ export class WebhookConsumer {
     public channel: ConfirmChannel | null = null;
     private isInitializing: Promise<ConfirmChannel> | null = null;
 
-    constructor() {}
+    constructor() { }
 
     async start(handler: ConsumerHandler) {
         const channel = await this.getChannel();
@@ -17,14 +17,14 @@ export class WebhookConsumer {
         console.log('webhook consumer started listening');
 
         await rabbitService.consume(
-            QUEUES.WEBHOOK_DISPATCH.name,
+            QUEUES.WEBHOOK_FANOUT.name,
             channel,
             async (content, _message, headers) => {
                 const parsed = webhookInsertPayloadSchema.safeParse(content);
 
                 if (!parsed.success) {
                     console.error('invalid message format: ', parsed.error);
-                    throw new Error('invalid message format'); 
+                    throw new Error('invalid message format');
                 }
 
                 try {
@@ -34,7 +34,7 @@ export class WebhookConsumer {
                     throw error;
                 }
             },
-            { prefetch: 50 } 
+            { prefetch: 50 }
         );
     }
 
@@ -42,7 +42,7 @@ export class WebhookConsumer {
         const deaths = headers?.['x-death']
         if (!deaths?.length) return 0
 
-        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_DISPATCH.name)
+        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_FANOUT.name)
         return entry?.count ?? 0
     }
 

@@ -19,20 +19,20 @@ type RetryQueue = {
 }
 
 export const QUEUES = {
-    WEBHOOK_DISPATCH: {
-        name: 'webhook.dispatch.queue',
+    WEBHOOK_FANOUT: {
+        name: 'webhook.fanout.queue',
         options: {
             durable: true,
             maxPriority: 10,
         },
         dlq: {
-            name: 'webhook.dispatch.dlq',
+            name: 'webhook.fanout.dlq',
             options: {
                 durable: true,
             }
         },
         retryQueue: {
-            name: 'webhook.dispatch.retry',
+            name: 'webhook.fanout.retry',
             options: {
                 durable: true,
                 messageTtl: 30000
@@ -44,9 +44,9 @@ export const QUEUES = {
 export type QueueName = keyof typeof QUEUES;
 
 export const webhookInsertPayloadSchema = z.object({
-  eventId: z.string(),
-  applicationId: z.string(),
-  eventType: z.string(),
+    eventId: z.string(),
+    applicationId: z.string(),
+    eventType: z.string(),
 });
 
 export type InsertEventPayload = z.infer<typeof webhookInsertPayloadSchema>;

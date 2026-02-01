@@ -18,13 +18,13 @@ async function shutdown() {
 }
 
 const start = async () => {
-    console.log('worker dispatcher initializing...');
+    console.log('webhook fanout worker initializing...');
 
     try {
         await pingDatabase();
         await rabbitService.init({ url: env.rabbitmq.RABBITMQ_URL });
     } catch (err) {
-        console.error('worker dispatcher failed to initialize', err);
+        console.error('webhook fanout worker failed to initialize', err);
         process.exit(1);
     }
 
