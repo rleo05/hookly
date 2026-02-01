@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { redis } from '../lib/redis.js';
+import { redis } from '@webhook-orchestrator/cache';
 import type { CreateEvent } from '../modules/event/schema.js';
 import { ApiError } from '../shared/errors.js';
 

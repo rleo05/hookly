@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@webhook-orchestrator/cache": "*",
     "@webhook-orchestrator/database": "*",
     "@webhook-orchestrator/env": "*",
     "@webhook-orchestrator/queue": "*",
@@ -19,7 +20,6 @@
     "fastify": "^5.6.2",
     "fastify-type-provider-zod": "^6.1.0",
     "nanoid": "^5.1.6",
-    "redis": "^5.10.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {

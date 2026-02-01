@@ -8,7 +8,7 @@ import { QUEUES } from './constants.js';
 
 const RECONNECT_MAX_ATTEMPTS = 5;
 
-export type MessageHandler = (content: unknown, message: ConsumeMessage) => Promise<void> | void;
+export type MessageHandler = (content: unknown, message: ConsumeMessage, headers: Record<string, unknown> | undefined) => Promise<void> | void;
 
 export type ConsumerOptions = Options.Consume & {
     prefetch?: number;
@@ -41,9 +41,9 @@ export class RabbitService {
         const channel = await this.connection.createChannel();
 
         for (const queue of Object.values(QUEUES)) {
-            let finalOptions: Options.AssertQueue = { ...queue.options };
+            let finalOptions: Options.AssertQueue = "options" in queue ? { ...queue.options } : {};
 
-            if (queue.dlq) {
+            if ("dlq" in queue && queue.dlq) {
                 await channel.assertQueue(queue.dlq.name, queue.dlq.options);
                 finalOptions = {
                     ...finalOptions,
@@ -54,7 +54,7 @@ export class RabbitService {
 
             await channel.assertQueue(queue.name, finalOptions);
 
-            if (queue.retryQueue) {
+            if ("retryQueue" in queue && queue.retryQueue) {
                 await channel.assertQueue(queue.retryQueue.name, {
                     ...queue.retryQueue.options,
                     deadLetterExchange: '',
@@ -141,7 +141,7 @@ export class RabbitService {
                 try {
                     const content = JSON.parse(msg.content.toString());
 
-                    await handler(content, msg);
+                    await handler(content, msg, msg.properties?.headers);
 
                     if (!options?.noAck) {
                         channel.ack(msg);

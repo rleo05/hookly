@@ -1,5 +1,5 @@
 {
-    "name": "worker-dispatcher",
+    "name": "@webhook-orchestrator/cache",
     "version": "0.0.1",
     "type": "module",
     "main": "./dist/index.js",
@@ -11,15 +11,12 @@
         }
     },
     "scripts": {
-        "dev": "tsx watch src/index.ts",
         "build": "tsc",
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
-        "@webhook-orchestrator/database": "*",
         "@webhook-orchestrator/env": "*",
-        "@webhook-orchestrator/queue": "*",
-        "p-limit": "^7.2.0"
+        "redis": "^5.0.0"
     },
     "devDependencies": {
         "typescript": "^5.9.3"

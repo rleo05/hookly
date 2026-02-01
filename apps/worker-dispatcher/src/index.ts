@@ -2,6 +2,7 @@ import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
 import { rabbitService } from '@webhook-orchestrator/queue';
 import { webhookConsumer } from '@webhook-orchestrator/queue';
+import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
 import { processWebhookMessage } from './service.js';
 
 process.on('SIGTERM', shutdown);
@@ -11,6 +12,7 @@ async function shutdown() {
     await Promise.allSettled([
         rabbitService.shutdown(),
         shutdownDatabase(),
+        shutdownRedis(),
     ]);
     process.exit(0);
 }
@@ -21,10 +23,17 @@ const start = async () => {
     try {
         await pingDatabase();
         await rabbitService.init({ url: env.rabbitmq.RABBITMQ_URL });
-        await webhookConsumer.start(processWebhookMessage);
     } catch (err) {
         console.error('worker dispatcher failed to initialize', err);
         process.exit(1);
     }
+
+    try {
+        await initRedis();
+    } catch (err) {
+        console.error('redis failed to initialize', err);
+    }
+
+    await webhookConsumer.start(processWebhookMessage);
 }
 start();

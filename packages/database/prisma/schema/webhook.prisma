@@ -68,6 +68,8 @@ model EventAttempt {
   endpointId   String        @map("endpoint_id")
   endpoint     Endpoint      @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 
+  idempotencyKey String      @map("idempotency_key") @unique
+
   status       AttemptStatus 
   responseCode Int?          @map("response_code")
   responseBody String?       @map("response_body") 
@@ -75,13 +77,13 @@ model EventAttempt {
   attemptNumber Int          @default(1) @map("attempt_number")
   createdAt    DateTime      @default(now()) @map("created_at")
 
-  @@index([eventId])
-  @@index([endpointId])
+  @@index([eventId, endpointId])
   @@map("event_attempts")
 }
 
 enum AttemptStatus {
   WAITING
+  ENQUEUED
   PROCESSING
   COMPLETED
   FAILED

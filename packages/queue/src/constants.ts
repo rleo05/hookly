@@ -18,7 +18,7 @@ type RetryQueue = {
     options?: Options.AssertQueue;
 }
 
-export const QUEUES: Record<string, QueueDefinition> = {
+export const QUEUES = {
     WEBHOOK_DISPATCH: {
         name: 'webhook.dispatch.queue',
         options: {
@@ -39,7 +39,7 @@ export const QUEUES: Record<string, QueueDefinition> = {
             }
         },
     },
-};
+} as const satisfies Record<string, QueueDefinition>;
 
 export type QueueName = keyof typeof QUEUES;
 

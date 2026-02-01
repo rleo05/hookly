@@ -1,9 +1,9 @@
-import type { ConfirmChannel } from 'amqplib';
+import type { ConfirmChannel, MessagePropertyHeaders } from 'amqplib';
 import { rabbitService } from '../index.js';
 import { QUEUES, webhookInsertPayloadSchema } from '../constants.js';
 import type { InsertEventPayload } from '../constants.js';
 
-type ConsumerHandler = (data: InsertEventPayload) => Promise<void>;
+type ConsumerHandler = (data: InsertEventPayload, headers: MessagePropertyHeaders | undefined) => Promise<void>;
 
 export class WebhookConsumer {
     public channel: ConfirmChannel | null = null;
@@ -19,7 +19,7 @@ export class WebhookConsumer {
         await rabbitService.consume(
             QUEUES.WEBHOOK_DISPATCH.name,
             channel,
-            async (content, _message) => {
+            async (content, _message, headers) => {
                 const parsed = webhookInsertPayloadSchema.safeParse(content);
 
                 if (!parsed.success) {
@@ -28,7 +28,7 @@ export class WebhookConsumer {
                 }
 
                 try {
-                    await handler(parsed.data);
+                    await handler(parsed.data, headers);
                 } catch (error) {
                     console.error('error processing webhook:', error);
                     throw error;
@@ -36,6 +36,14 @@ export class WebhookConsumer {
             },
             { prefetch: 50 } 
         );
+    }
+
+    getRetryCount(headers: MessagePropertyHeaders | undefined) {
+        const deaths = headers?.['x-death']
+        if (!deaths?.length) return 0
+
+        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_DISPATCH.name)
+        return entry?.count ?? 0
     }
 
     private async getChannel() {
