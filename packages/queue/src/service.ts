@@ -69,10 +69,12 @@ export class RabbitService {
         if (!this.config) {
             throw new Error('rabbitmq client not initialized. Call init() first.');
         }
+        
+        let channel: amqp.Channel | null = null;
 
-        this.connection = await amqp.connect(this.config.url);
-        const channel = await this.connection.createChannel();
         try {
+            this.connection = await amqp.connect(this.config.url);
+            channel = await this.connection.createChannel();
             console.log('rabbitmq client connected');
             this.retryCount = 0;
 
@@ -90,7 +92,7 @@ export class RabbitService {
             console.error('rabbitmq connection failed', err);
             await this.reconnect();
         } finally {
-            await channel.close();
+            await channel?.close();
         }
     }
 

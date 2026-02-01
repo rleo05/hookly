@@ -3,9 +3,10 @@ import { InsertEventPayload } from '@webhook-orchestrator/queue/constants';
 import { Prisma, prisma } from '@webhook-orchestrator/database';
 import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
 import { webhookProducer, webhookConsumer } from '@webhook-orchestrator/queue';
+import { redis } from '@webhook-orchestrator/cache';
 
 const MAX_RETRIES = 5;
-const TTL_BASE = 30000;
+const TTL_BASE = 15000;
 const limit = pLimit(50);
 
 export const processWebhookMessage = async (
@@ -25,11 +26,7 @@ export const processWebhookMessage = async (
           eventTypes: { has: data.eventType }
         },
         select: {
-          id: true,
-          url: true,
-          method: true,
-          headers: true,
-          secret: true
+          id: true
         }
       })
     ]);
@@ -44,24 +41,20 @@ export const processWebhookMessage = async (
       return;
     }
 
-    await Promise.all(
-      endpoints.map(endpoint =>
-        limit(() =>
-          prisma.eventAttempt.upsert({
-            where: {
-              idempotencyKey: `initial:${endpoint.id}:${data.eventId}`
-            },
-            update: {},
-            create: {
-              eventId: data.eventId,
-              endpointId: endpoint.id,
-              status: 'WAITING',
-              idempotencyKey: `initial:${endpoint.id}:${data.eventId}`
-            }
-          })
-        )
-      )
-    );
+    if (redis.isOpen) {
+      redis.set(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 3600 }).catch(err => console.error('redis set fail', err));
+    }
+
+    await prisma.eventAttempt.createMany({
+      data: endpoints.map(endpoint => ({
+        eventId: data.eventId,
+        endpointId: endpoint.id,
+        status: 'WAITING',
+        idempotencyKey: `initial:${endpoint.id}:${data.eventId}`
+      })),
+      skipDuplicates: true
+    });
+
 
     const attempts = await prisma.eventAttempt.findMany({
       where: {
@@ -81,29 +74,51 @@ export const processWebhookMessage = async (
       }
     });
 
-    await Promise.all(
+    if (attempts.length === 0) {
+      return;
+    }
+
+    const results = await Promise.allSettled(
       attempts.map(attempt =>
         limit(async () => {
-
-          await dispatchToQueue({
-            attemptId: attempt.id,
-            eventId: data.eventId,
-            url: attempt.endpoint.url,
-            method: attempt.endpoint.method,
-            headers: attempt.endpoint.headers,
-            secret: attempt.endpoint.secret
-          });
-
-          await prisma.eventAttempt.updateMany({
-            where: {
-              id: attempt.id,
-              status: 'WAITING' 
-            },
-            data: { status: 'ENQUEUED' }
-          });
+          try {
+            await dispatchToQueue({
+              attemptId: attempt.id,
+              eventId: data.eventId,
+              url: attempt.endpoint.url,
+              method: attempt.endpoint.method,
+              headers: attempt.endpoint.headers,
+              secret: attempt.endpoint.secret
+            });
+          } catch (error) {
+            console.error(`error dispatching job ${attempt.id}:`, error);
+            return null;
+          }
         })
       )
     );
+
+    const successIds = results
+      .map((res, index) => {
+        if (res.status === 'fulfilled') return attempts[index].id;
+        return null;
+      })
+      .filter((id): id is string => id !== null);
+
+    if (successIds.length > 0) {
+      await prisma.eventAttempt.updateMany({
+        where: {
+          id: {
+            in: successIds
+          }
+        },
+        data: { status: 'ENQUEUED' }
+      });
+    }
+
+    if (attempts.length !== successIds.length) {
+      throw new Error(`partial dispatch for event ${data.eventId}`);
+    }
   } catch (error) {
     console.error(`error processing event ${data.eventId}:`, error);
 
