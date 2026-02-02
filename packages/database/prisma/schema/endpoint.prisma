@@ -1,0 +1,41 @@
+model Endpoint {
+  id          String    @id @default(cuid())
+  uid         String    @unique
+
+  applicationId String    @map("application_id")
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  url         String
+  method      String
+  headers     Json?
+  description String?
+  secret      String
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  isActive    Boolean   @default(true) @map("is_active")
+
+  routing     EndpointRouting[]
+  attempts    EventAttempt[]
+
+  @@index([applicationId])
+  @@map("endpoints")
+}
+
+model EndpointRouting {
+  endpointId String @map("endpoint_id")
+  eventTypeId String @map("event_type_id")
+
+  applicationId String @map("application_id")
+
+  endpoint Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, eventTypeId, endpointId])
+  @@id([endpointId, eventTypeId])
+  @@map("endpoint_routings")
+}
+

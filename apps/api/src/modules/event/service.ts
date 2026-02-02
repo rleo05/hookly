@@ -171,6 +171,29 @@ export async function checkExistingEventTypes(eventTypes: string[], appId: strin
   }
 }
 
+export async function getEventTypeIds(eventTypes: string[], appId: string): Promise<string[]> {
+  const foundEventTypes = await prisma.eventType.findMany({
+    where: {
+      applicationId: appId,
+      name: {
+        in: eventTypes,
+      },
+      disabled: false,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  if (foundEventTypes.length !== eventTypes.length) {
+    const missingEventTypes = eventTypes.filter((e) => !foundEventTypes.find((f) => f.name === e));
+    throw new EventTypeListNotFound(missingEventTypes);
+  }
+
+  return foundEventTypes.map((e) => e.id);
+}
+
 export function normalizeEventTypeName(name: string) {
   return name
     .trim()

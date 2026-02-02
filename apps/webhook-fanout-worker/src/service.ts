@@ -11,22 +11,37 @@ const limit = pLimit(50);
 
 export const processWebhookMessage = async (
   data: InsertEventPayload,
-  headers: MessagePropertyHeaders | undefined
-) => {
+  headers: MessagePropertyHeaders | undefined ) => {
   try {
-    const [event, endpoints] = await Promise.all([
+    const eventType = await prisma.eventType.findUnique({
+      select: { id: true },
+      where: {
+        applicationId_name: {
+          applicationId: data.applicationId,
+          name: data.eventType
+        },
+        disabled: false
+      }
+    });
+
+    if (!eventType) {
+      console.error(`event type ${data.eventType} not found`);
+      return;
+    }
+
+    const [event, endpointRoutings] = await Promise.all([
       prisma.event.findUnique({
         select: { payload: true },
         where: { id: data.eventId }
       }),
-      prisma.endpoint.findMany({
+      prisma.endpointRouting.findMany({
         where: {
           applicationId: data.applicationId,
-          isActive: true,
-          eventTypes: { has: data.eventType }
+          eventTypeId: eventType.id,
+          endpoint: { isActive: true }
         },
         select: {
-          id: true
+          endpointId: true
         }
       })
     ]);
@@ -36,7 +51,7 @@ export const processWebhookMessage = async (
       return;
     }
 
-    if (!endpoints.length) {
+    if (!endpointRoutings.length) {
       console.warn(`event ${data.eventId} has no endpoints`);
       return;
     }
@@ -46,11 +61,11 @@ export const processWebhookMessage = async (
     }
 
     await prisma.eventAttempt.createMany({
-      data: endpoints.map(endpoint => ({
+      data: endpointRoutings.map(endpointRouting => ({
         eventId: data.eventId,
-        endpointId: endpoint.id,
+        endpointId: endpointRouting.endpointId,
         status: 'WAITING',
-        idempotencyKey: `initial:${endpoint.id}:${data.eventId}`
+        idempotencyKey: `initial:${endpointRouting.endpointId}:${data.eventId}`
       })),
       skipDuplicates: true
     });
@@ -148,7 +163,7 @@ type WebhookDispatchJob = {
 };
 
 const dispatchToQueue = async (job: WebhookDispatchJob) => {
-  console.log('dispatching job', job);
+  // console.log('dispatching job', job);
 
 
   // producer

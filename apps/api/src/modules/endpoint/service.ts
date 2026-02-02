@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { Prisma, prisma } from '@webhook-orchestrator/database';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
-import { checkExistingEventTypes, normalizeEventTypeName } from '../event/service.js';
+import { getEventTypeIds, normalizeEventTypeName } from '../event/service.js';
 import {
   type CreateEndpoint,
   type EndpointItem,
@@ -22,7 +22,7 @@ type PrismaEndpointResult = {
   method: string;
   headers: Prisma.JsonValue;
   description: string | null;
-  eventTypes: string[];
+  routing: { eventType: { name: string } }[];
   createdAt: Date;
   isActive: boolean;
 };
@@ -36,7 +36,7 @@ function toEndpointItem(endpoint: PrismaEndpointResult): EndpointItem {
       ...(endpoint.headers && { headers: endpoint.headers }),
     },
     description: endpoint.description,
-    eventTypes: endpoint.eventTypes,
+    eventTypes: endpoint.routing.map((r) => r.eventType.name),
     createdAt: endpoint.createdAt,
     isActive: endpoint.isActive,
   };
@@ -53,9 +53,9 @@ export async function create(
 
   const normalizedEventTypes = eventTypes ? eventTypes.map((e) => normalizeEventTypeName(e)) : [];
 
-  if (normalizedEventTypes.length) {
-    await checkExistingEventTypes(normalizedEventTypes, applicationId);
-  }
+  const eventTypeIds = normalizedEventTypes.length
+    ? await getEventTypeIds(normalizedEventTypes, applicationId)
+    : [];
 
   const endpoint = await prisma.endpoint.create({
     data: {
@@ -65,9 +65,16 @@ export async function create(
       method: request.method ?? 'POST',
       headers: request.headers ?? Prisma.JsonNull,
       description: description ?? null,
-      eventTypes: normalizedEventTypes,
       secret: plainSecret,
       isActive: isActive ?? true,
+      routing: {
+        createMany: {
+          data: eventTypeIds.map((eventTypeId) => ({
+            eventTypeId,
+            applicationId,
+          })),
+        },
+      },
     },
     select: {
       uid: true,
@@ -75,7 +82,9 @@ export async function create(
       method: true,
       headers: true,
       description: true,
-      eventTypes: true,
+      routing: {
+        select: { eventType: { select: { name: true } } },
+      },
       createdAt: true,
       isActive: true,
     },
@@ -103,7 +112,9 @@ export async function get(userId: string, id: string): Promise<EndpointItem> {
       method: true,
       headers: true,
       description: true,
-      eventTypes: true,
+      routing: {
+        select: { eventType: { select: { name: true } } },
+      },
       createdAt: true,
       isActive: true,
     },
@@ -135,7 +146,9 @@ export async function list(userId: string, query: ListEndpointQuery): Promise<En
         method: true,
         headers: true,
         description: true,
-        eventTypes: true,
+        routing: {
+          select: { eventType: { select: { name: true } } },
+        },
         createdAt: true,
         isActive: true,
       },
@@ -171,17 +184,43 @@ export async function update(
       },
       deletedAt: null,
     },
-    select: { id: true, applicationId: true },
+    select: {
+      id: true,
+      applicationId: true,
+      routing: { select: { eventTypeId: true } },
+    },
   });
 
   if (!existingEndpoint) {
     throw new EndpointNotFound();
   }
 
-  const normalizedEventTypes = eventTypes ? eventTypes.map((e) => normalizeEventTypeName(e)) : [];
+  const normalizedEventTypes = eventTypes ? eventTypes.map((e) => normalizeEventTypeName(e)) : null;
 
-  if (normalizedEventTypes.length) {
-    await checkExistingEventTypes(normalizedEventTypes, existingEndpoint.applicationId);
+  const eventTypeIds = normalizedEventTypes?.length
+    ? await getEventTypeIds(normalizedEventTypes, existingEndpoint.applicationId)
+    : null;
+
+  if (eventTypeIds !== null) {
+    const currentRoutingIds = existingEndpoint.routing.map((r) => r.eventTypeId);
+    const toDelete = currentRoutingIds.filter((id) => !eventTypeIds.includes(id));
+    const toCreate = eventTypeIds.filter((id) => !currentRoutingIds.includes(id));
+
+    await prisma.$transaction([
+      prisma.endpointRouting.deleteMany({
+        where: {
+          endpointId: existingEndpoint.id,
+          eventTypeId: { in: toDelete },
+        },
+      }),
+      prisma.endpointRouting.createMany({
+        data: toCreate.map((eventTypeId) => ({
+          endpointId: existingEndpoint.id,
+          eventTypeId,
+          applicationId: existingEndpoint.applicationId,
+        })),
+      }),
+    ]);
   }
 
   const updatedEndpoint = await prisma.endpoint.update({
@@ -191,7 +230,6 @@ export async function update(
       ...(request.method && { method: request.method }),
       ...(request.headers && { headers: request.headers }),
       ...(description !== undefined && { description }),
-      ...(eventTypes !== undefined && { eventTypes: normalizedEventTypes }),
       ...(secret && { secret }),
       ...(isActive !== undefined && { isActive }),
     },
@@ -201,7 +239,9 @@ export async function update(
       description: true,
       method: true,
       headers: true,
-      eventTypes: true,
+      routing: {
+        select: { eventType: { select: { name: true } } },
+      },
       createdAt: true,
       isActive: true,
     },

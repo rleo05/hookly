@@ -151,12 +151,19 @@ export async function remove(userId: string, uid: string) {
     throw new ApplicationNotFound();
   }
 
-  await prisma.application.update({
-    where: { id: existingApp.id },
-    data: {
-      deletedAt: new Date(),
-    },
-  });
+  await prisma.$transaction([
+    prisma.endpointRouting.deleteMany({
+      where: {
+        applicationId: existingApp.id,
+      },
+    }),
+    prisma.application.update({
+      where: { id: existingApp.id },
+      data: {
+        deletedAt: new Date(),
+      },
+    }),
+  ]);
 }
 
 export async function findApplicationByUidAndUser(uid: string, userId: string) {
