@@ -1,13 +1,13 @@
 import type { MessagePropertyHeaders } from 'amqplib';
-import { QUEUES, webhookFanoutPayloadSchema } from '../constants.js';
-import type { WebhookFanoutPayload } from '../constants.js';
+import { QUEUES, webhookDispatchPayloadSchema } from '../constants.js';
+import type { WebhookDispatchPayload } from '../constants.js';
 import { QueueBase } from '../base/queue-base.js';
 import type { RabbitService } from '../service.js';
 
-type ConsumerHandler = (data: WebhookFanoutPayload, headers: MessagePropertyHeaders | undefined) => Promise<void>;
+type ConsumerHandler = (data: WebhookDispatchPayload, headers: MessagePropertyHeaders | undefined) => Promise<void>;
 
-export class WebhookFanoutConsumer extends QueueBase {
-    protected readonly channelName = 'webhook fanout consumer';
+export class WebhookDispatchConsumer extends QueueBase {
+    protected readonly channelName = 'webhook dispatch consumer';
 
     constructor(rabbitService: RabbitService) {
         super(rabbitService);
@@ -16,23 +16,23 @@ export class WebhookFanoutConsumer extends QueueBase {
     async start(handler: ConsumerHandler) {
         const channel = await this.getChannel();
 
-        console.log('webhook fanout consumer started listening');
+        console.log('webhook dispatch consumer started listening');
 
         await this.rabbitService.consume(
-            QUEUES.WEBHOOK_FANOUT.name,
+            QUEUES.WEBHOOK_DISPATCH.name,
             channel,
             async (content, _message, headers) => {
-                const parsed = webhookFanoutPayloadSchema.safeParse(content);
+                const parsed = webhookDispatchPayloadSchema.safeParse(content);
 
                 if (!parsed.success) {
-                    console.error('invalid message format: ', parsed.error);
-                    throw new Error('invalid message format');
+                    console.error('invalid dispatch message format: ', parsed.error);
+                    throw new Error('invalid dispatch message format');
                 }
 
                 try {
                     await handler(parsed.data, headers);
                 } catch (error) {
-                    console.error('error processing webhook:', error);
+                    console.error('error processing webhook dispatch:', error);
                     throw error;
                 }
             },
@@ -44,7 +44,7 @@ export class WebhookFanoutConsumer extends QueueBase {
         const deaths = headers?.['x-death']
         if (!deaths?.length) return 0
 
-        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_FANOUT.name)
+        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_DISPATCH.name)
         return entry?.count ?? 0
     }
 }

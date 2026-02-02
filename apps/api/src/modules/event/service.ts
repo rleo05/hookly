@@ -1,5 +1,5 @@
 import { Prisma, prisma } from '@webhook-orchestrator/database';
-import { webhookProducer } from '@webhook-orchestrator/queue';
+import { webhookFanoutProducer } from '@webhook-orchestrator/queue';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
@@ -308,8 +308,9 @@ export async function createEvent(
       },
     });
 
-    await webhookProducer.insertEvent({
+    await webhookFanoutProducer.insertEvent({
       eventId: event.id,
+      eventUid: event.uid,
       applicationId: appId,
       eventType,
     });

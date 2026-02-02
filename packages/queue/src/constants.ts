@@ -1,5 +1,6 @@
 import type { Options } from 'amqplib';
 import { z } from 'zod';
+import { Prisma } from '@webhook-orchestrator/database';
 
 export interface QueueDefinition {
     name: string;
@@ -35,7 +36,25 @@ export const QUEUES = {
             name: 'webhook.fanout.retry',
             options: {
                 durable: true,
-                messageTtl: 30000
+            }
+        },
+    },
+    WEBHOOK_DISPATCH: {
+        name: 'webhook.dispatch.queue',
+        options: {
+            durable: true,
+            maxPriority: 10,
+        },
+        dlq: {
+            name: 'webhook.dispatch.dlq',
+            options: {
+                durable: true,
+            }
+        },
+        retryQueue: {
+            name: 'webhook.dispatch.retry',
+            options: {
+                durable: true,
             }
         },
     },
@@ -43,11 +62,23 @@ export const QUEUES = {
 
 export type QueueName = keyof typeof QUEUES;
 
-export const webhookInsertPayloadSchema = z.object({
+export const webhookFanoutPayloadSchema = z.object({
     eventId: z.string(),
+    eventUid: z.string(),
     applicationId: z.string(),
     eventType: z.string(),
 });
 
-export type InsertEventPayload = z.infer<typeof webhookInsertPayloadSchema>;
+export type WebhookFanoutPayload = z.infer<typeof webhookFanoutPayloadSchema>;
 
+export const webhookDispatchPayloadSchema = z.object({
+    eventId: z.string(),
+    eventUid: z.string(),
+    attemptId: z.string(),
+    url: z.string(),
+    method: z.string(),
+    headers: z.custom<Prisma.JsonValue>().nullable().optional(),
+    secret: z.string(),
+});
+
+export type WebhookDispatchPayload = z.infer<typeof webhookDispatchPayloadSchema>;

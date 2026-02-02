@@ -1,8 +1,8 @@
 import pLimit from 'p-limit';
-import { InsertEventPayload } from '@webhook-orchestrator/queue/constants';
-import { Prisma, prisma } from '@webhook-orchestrator/database';
+import { WebhookFanoutPayload } from '@webhook-orchestrator/queue/constants';
+import { prisma } from '@webhook-orchestrator/database';
 import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
-import { webhookProducer, webhookConsumer } from '@webhook-orchestrator/queue';
+import { webhookFanoutProducer, webhookFanoutConsumer, webhookDispatchProducer } from '@webhook-orchestrator/queue';
 import { redis } from '@webhook-orchestrator/cache';
 
 const MAX_RETRIES = 5;
@@ -10,8 +10,8 @@ const TTL_BASE = 15000;
 const limit = pLimit(50);
 
 export const processWebhookMessage = async (
-  data: InsertEventPayload,
-  headers: MessagePropertyHeaders | undefined ) => {
+  data: WebhookFanoutPayload,
+  headers: MessagePropertyHeaders | undefined) => {
   try {
     const eventType = await prisma.eventType.findUnique({
       select: { id: true },
@@ -97,9 +97,10 @@ export const processWebhookMessage = async (
       attempts.map(attempt =>
         limit(async () => {
           try {
-            await dispatchToQueue({
+            await webhookDispatchProducer.dispatch({
               attemptId: attempt.id,
               eventId: data.eventId,
+              eventUid: data.eventUid,
               url: attempt.endpoint.url,
               method: attempt.endpoint.method,
               headers: attempt.endpoint.headers,
@@ -137,12 +138,12 @@ export const processWebhookMessage = async (
   } catch (error) {
     console.error(`error processing event ${data.eventId}:`, error);
 
-    const retryCount = webhookConsumer.getRetryCount(headers);
+    const retryCount = webhookFanoutConsumer.getRetryCount(headers);
 
     if (retryCount < MAX_RETRIES) {
       const ttl = TTL_BASE * Math.pow(2, retryCount);
 
-      await webhookProducer
+      await webhookFanoutProducer
         .insertToRetryQueue(data, 10, ttl)
         .catch(err => console.error('retry enqueue fail', err));
       return;
@@ -151,20 +152,4 @@ export const processWebhookMessage = async (
     console.error('max retries reached, sending to DLQ');
     throw error;
   }
-};
-
-type WebhookDispatchJob = {
-  eventId: string;
-  attemptId: string;
-  url: string;
-  method: string;
-  headers: Prisma.JsonValue;
-  secret: string;
-};
-
-const dispatchToQueue = async (job: WebhookDispatchJob) => {
-  // console.log('dispatching job', job);
-
-
-  // producer
 };

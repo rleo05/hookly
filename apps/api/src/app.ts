@@ -1,7 +1,7 @@
 import cors from '@fastify/cors';
 import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
-import { rabbitService, webhookProducer } from '@webhook-orchestrator/queue';
+import { rabbitService } from '@webhook-orchestrator/queue';
 import Fastify from 'fastify';
 import {
   serializerCompiler,

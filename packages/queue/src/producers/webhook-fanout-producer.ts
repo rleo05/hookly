@@ -1,58 +1,32 @@
-import { rabbitService } from '../index.js';
-import type { InsertEventPayload } from '../constants.js';
-import type { ConfirmChannel } from 'amqplib';
+import type { WebhookFanoutPayload } from '../constants.js';
 import { QUEUES } from '../constants.js';
+import { QueueBase } from '../base/queue-base.js';
+import type { RabbitService } from '../service.js';
 
-export class WebhookProducer {
-  public channel: ConfirmChannel | null = null;
-  private isInitializing: Promise<ConfirmChannel> | null = null;
+export class WebhookFanoutProducer extends QueueBase {
+  protected readonly channelName = 'webhook fanout producer';
 
-  constructor() { }
-
-  private async getChannel() {
-    if (this.channel) return this.channel;
-
-    if (!this.isInitializing) {
-      this.isInitializing = rabbitService
-        .createChannel()
-        .then((chan) => {
-          this.channel = chan;
-
-          this.channel.on('error', (err: Error) => {
-            console.error('webhook producer channel error', err);
-            this.channel = null;
-            this.isInitializing = null;
-          });
-
-          return chan;
-        })
-        .catch((err) => {
-          console.error('webhook producer channel initialization failed', err);
-          this.isInitializing = null;
-          throw err;
-        });
-    }
-
-    return this.isInitializing;
+  constructor(rabbitService: RabbitService) {
+    super(rabbitService);
   }
 
-  async insertEvent(payload: InsertEventPayload) {
+  async insertEvent(payload: WebhookFanoutPayload) {
     const channel = await this.getChannel();
 
-    rabbitService.publish(QUEUES.WEBHOOK_FANOUT.name, channel, payload);
+    this.rabbitService.publish(QUEUES.WEBHOOK_FANOUT.name, channel, payload);
   }
 
-  async insertToRetryQueue(payload: InsertEventPayload, priority: number, ttl: number) {
+  async insertToRetryQueue(payload: WebhookFanoutPayload, priority: number, ttl: number) {
     const channel = await this.getChannel();
 
     if (!QUEUES.WEBHOOK_FANOUT.retryQueue) {
-      throw new Error('webhook dispatch retry queue not defined');
+      throw new Error('webhook fanout retry queue not defined');
     }
 
     if (priority < 0 || priority > QUEUES.WEBHOOK_FANOUT.options.maxPriority) {
       priority = QUEUES.WEBHOOK_FANOUT.options.maxPriority;
     }
 
-    rabbitService.publish(QUEUES.WEBHOOK_FANOUT.retryQueue.name, channel, payload, { priority: priority, expiration: ttl });
+    this.rabbitService.publish(QUEUES.WEBHOOK_FANOUT.retryQueue.name, channel, payload, { priority: priority, expiration: ttl });
   }
 }

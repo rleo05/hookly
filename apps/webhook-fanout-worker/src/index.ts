@@ -1,7 +1,7 @@
 import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
 import { rabbitService } from '@webhook-orchestrator/queue';
-import { webhookConsumer } from '@webhook-orchestrator/queue';
+import { webhookFanoutConsumer } from '@webhook-orchestrator/queue';
 import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
 import { processWebhookMessage } from './service.js';
 
@@ -34,6 +34,6 @@ const start = async () => {
         console.error('redis failed to initialize', err);
     }
 
-    await webhookConsumer.start(processWebhookMessage);
+    await webhookFanoutConsumer.start(processWebhookMessage);
 }
 start();
