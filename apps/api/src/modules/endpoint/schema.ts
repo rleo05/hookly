@@ -25,7 +25,7 @@ export type CreateEndpoint = z.infer<typeof createEndpointSchema>;
 
 export const updateEndpointSchema = z.object({
   request: z.object({
-    url: z.url({ error: 'url must be https', protocol: /^https$/ }),
+    url: z.url({ error: 'url must be https', protocol: /^https$/ }).optional(),
     headers: z.record(z.string(), z.union([
       z.string(),
       z.number(),
@@ -33,7 +33,7 @@ export const updateEndpointSchema = z.object({
       z.array(z.string())
     ])).optional(),
     method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']).optional(),
-  }),
+  }).optional(),
   description: z.string().optional(),
   eventTypes: z.array(z.string().min(1)).nullable().optional(),
   secret: z.string().min(3).optional(),

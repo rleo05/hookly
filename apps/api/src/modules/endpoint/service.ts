@@ -226,9 +226,9 @@ export async function update(
   const updatedEndpoint = await prisma.endpoint.update({
     where: { id: existingEndpoint.id },
     data: {
-      ...(request.url && { url: request.url }),
-      ...(request.method && { method: request.method }),
-      ...(request.headers && { headers: request.headers }),
+      ...(request?.url && { url: request.url }),
+      ...(request?.method && { method: request.method }),
+      ...(request?.headers && { headers: request.headers }),
       ...(description !== undefined && { description }),
       ...(secret && { secret }),
       ...(isActive !== undefined && { isActive }),
