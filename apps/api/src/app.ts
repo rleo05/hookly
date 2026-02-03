@@ -1,4 +1,5 @@
 import cors from '@fastify/cors';
+import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
 import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
 import { rabbitService } from '@webhook-orchestrator/queue';
@@ -8,7 +9,6 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
-import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
 import { authRoutes } from './modules/auth/routes.js';

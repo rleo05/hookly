@@ -1,9 +1,13 @@
-import pLimit from 'p-limit';
-import { WebhookFanoutPayload } from '@webhook-orchestrator/queue/constants';
+import { redis } from '@webhook-orchestrator/cache';
 import { prisma } from '@webhook-orchestrator/database';
 import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
-import { webhookFanoutProducer, webhookFanoutConsumer, webhookDispatchProducer } from '@webhook-orchestrator/queue';
-import { redis } from '@webhook-orchestrator/cache';
+import {
+  webhookDispatchProducer,
+  webhookFanoutConsumer,
+  webhookFanoutProducer,
+} from '@webhook-orchestrator/queue';
+import type { WebhookFanoutPayload } from '@webhook-orchestrator/queue/constants';
+import pLimit from 'p-limit';
 
 const MAX_RETRIES = 5;
 const TTL_BASE = 15000;
@@ -11,17 +15,18 @@ const limit = pLimit(50);
 
 export const processWebhookMessage = async (
   data: WebhookFanoutPayload,
-  headers: MessagePropertyHeaders | undefined) => {
+  headers: MessagePropertyHeaders | undefined,
+) => {
   try {
     const eventType = await prisma.eventType.findUnique({
       select: { id: true },
       where: {
         applicationId_name: {
           applicationId: data.applicationId,
-          name: data.eventType
+          name: data.eventType,
         },
-        disabled: false
-      }
+        disabled: false,
+      },
     });
 
     if (!eventType) {
@@ -32,18 +37,18 @@ export const processWebhookMessage = async (
     const [event, endpointRoutings] = await Promise.all([
       prisma.event.findUnique({
         select: { payload: true },
-        where: { id: data.eventId }
+        where: { id: data.eventId },
       }),
       prisma.endpointRouting.findMany({
         where: {
           applicationId: data.applicationId,
           eventTypeId: eventType.id,
-          endpoint: { isActive: true }
+          endpoint: { isActive: true },
         },
         select: {
-          endpointId: true
-        }
-      })
+          endpointId: true,
+        },
+      }),
     ]);
 
     if (!event) {
@@ -57,24 +62,25 @@ export const processWebhookMessage = async (
     }
 
     if (redis.isOpen) {
-      redis.set(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 3600 }).catch(err => console.error('redis set fail', err));
+      redis
+        .set(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 3600 })
+        .catch((err) => console.error('redis set fail', err));
     }
 
     await prisma.eventAttempt.createMany({
-      data: endpointRoutings.map(endpointRouting => ({
+      data: endpointRoutings.map((endpointRouting) => ({
         eventId: data.eventId,
         endpointId: endpointRouting.endpointId,
         status: 'WAITING',
-        idempotencyKey: `initial:${endpointRouting.endpointId}:${data.eventId}`
+        idempotencyKey: `initial:${endpointRouting.endpointId}:${data.eventId}`,
       })),
-      skipDuplicates: true
+      skipDuplicates: true,
     });
-
 
     const attempts = await prisma.eventAttempt.findMany({
       where: {
         eventId: data.eventId,
-        status: 'WAITING'
+        status: 'WAITING',
       },
       select: {
         id: true,
@@ -83,10 +89,10 @@ export const processWebhookMessage = async (
             url: true,
             method: true,
             headers: true,
-            secret: true
-          }
-        }
-      }
+            secret: true,
+          },
+        },
+      },
     });
 
     if (attempts.length === 0) {
@@ -94,7 +100,7 @@ export const processWebhookMessage = async (
     }
 
     const results = await Promise.allSettled(
-      attempts.map(attempt =>
+      attempts.map((attempt) =>
         limit(async () => {
           try {
             await webhookDispatchProducer.dispatch({
@@ -104,14 +110,14 @@ export const processWebhookMessage = async (
               url: attempt.endpoint.url,
               method: attempt.endpoint.method,
               headers: attempt.endpoint.headers,
-              secret: attempt.endpoint.secret
+              secret: attempt.endpoint.secret,
             });
           } catch (error) {
             console.error(`error dispatching job ${attempt.id}:`, error);
             return null;
           }
-        })
-      )
+        }),
+      ),
     );
 
     const successIds = results
@@ -125,10 +131,10 @@ export const processWebhookMessage = async (
       await prisma.eventAttempt.updateMany({
         where: {
           id: {
-            in: successIds
-          }
+            in: successIds,
+          },
         },
-        data: { status: 'ENQUEUED' }
+        data: { status: 'ENQUEUED' },
       });
     }
 
@@ -141,11 +147,11 @@ export const processWebhookMessage = async (
     const retryCount = webhookFanoutConsumer.getRetryCount(headers);
 
     if (retryCount < MAX_RETRIES) {
-      const ttl = TTL_BASE * Math.pow(2, retryCount);
+      const ttl = TTL_BASE * 2 ** retryCount;
 
       await webhookFanoutProducer
         .insertToRetryQueue(data, 10, ttl)
-        .catch(err => console.error('retry enqueue fail', err));
+        .catch((err) => console.error('retry enqueue fail', err));
       return;
     }
 

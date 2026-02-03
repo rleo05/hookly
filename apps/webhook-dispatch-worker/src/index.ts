@@ -1,8 +1,8 @@
 import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
 import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
 import { env } from '@webhook-orchestrator/env';
-import { rabbitService, webhookFanoutConsumer } from '@webhook-orchestrator/queue';
-import { processWebhookMessage } from './service.js';
+import { rabbitService, webhookDispatchConsumer } from '@webhook-orchestrator/queue';
+import { dispatchWebhook } from './service.js';
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
@@ -13,13 +13,13 @@ async function shutdown() {
 }
 
 const start = async () => {
-  console.log('webhook fanout worker initializing...');
+  console.log('webhook dispatch worker initializing...');
 
   try {
     await pingDatabase();
     await rabbitService.init({ url: env.rabbitmq.RABBITMQ_URL });
   } catch (err) {
-    console.error('webhook fanout worker failed to initialize', err);
+    console.error('webhook dispatch worker failed to initialize', err);
     process.exit(1);
   }
 
@@ -29,6 +29,6 @@ const start = async () => {
     console.error('redis failed to initialize', err);
   }
 
-  await webhookFanoutConsumer.start(processWebhookMessage);
+  await webhookDispatchConsumer.start(dispatchWebhook);
 };
 start();
