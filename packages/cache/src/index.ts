@@ -1,5 +1,5 @@
 import { env } from '@webhook-orchestrator/env';
-import { createClient, type RedisClientType } from 'redis';
+import { createClient, type RedisClientType, type SetOptions } from 'redis';
 
 const MAX_RETRIES = 5;
 
@@ -30,6 +30,27 @@ export async function initRedis() {
 export async function shutdownRedis() {
     if (redis.isOpen) {
         await redis.quit();
+    }
+}
+
+export async function safeGet(key: string) {
+    if (!redis.isOpen) return null;
+
+    try {
+        return await redis.get(key);
+    } catch (error) {
+        console.error(`redis get for key ${key} failed`, error);
+        return null;
+    }
+}
+
+export async function safeSet(key: string, value: string, options?: SetOptions) {
+    if (!redis.isOpen) return;
+
+    try {
+        await redis.set(key, value, options);
+    } catch (error) {
+        console.error(`redis set for key ${key} failed`, error);
     }
 }
 

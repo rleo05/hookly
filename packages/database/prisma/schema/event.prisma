@@ -30,7 +30,8 @@ model EventAttempt {
 
   status       AttemptStatus 
   responseCode Int?          @map("response_code")
-  responseBody String?       @map("response_body") 
+  responseHeader Json?       @map("response_header")
+  responseBody Json?         @map("response_body") 
   durationMs   Int?          @map("duration_ms")
   attemptNumber Int          @default(1) @map("attempt_number")
   createdAt    DateTime      @default(now()) @map("created_at")

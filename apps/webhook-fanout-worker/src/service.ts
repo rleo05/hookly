@@ -1,4 +1,4 @@
-import { redis } from '@webhook-orchestrator/cache';
+import { safeSet } from '@webhook-orchestrator/cache';
 import { prisma } from '@webhook-orchestrator/database';
 import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
 import {
@@ -61,11 +61,7 @@ export const processWebhookMessage = async (
       return;
     }
 
-    if (redis.isOpen) {
-      redis
-        .set(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 3600 })
-        .catch((err) => console.error('redis set fail', err));
-    }
+    safeSet(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 60 * 60 });
 
     await prisma.eventAttempt.createMany({
       data: endpointRoutings.map((endpointRouting) => ({

@@ -247,7 +247,6 @@ export async function update(
     },
   });
 
-
   if (secret) {
     return {
       ...toEndpointItem(updatedEndpoint),

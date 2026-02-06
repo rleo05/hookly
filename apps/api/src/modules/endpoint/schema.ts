@@ -1,7 +1,7 @@
+import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { ApiError } from '../../shared/errors.js';
 import type { PaginationResult } from '../../shared/schema.js';
-import { Prisma } from '@prisma/client';
 
 export const createEndpointSchema = z.object({
   applicationUid: z.string().min(1),
@@ -11,12 +11,9 @@ export const createEndpointSchema = z.object({
   isActive: z.boolean().optional(),
   request: z.object({
     url: z.url({ error: 'url must be https', protocol: /^https$/ }),
-    headers: z.record(z.string(), z.union([
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.array(z.string())
-    ])).optional(),
+    headers: z
+      .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]))
+      .optional(),
     method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']).optional(),
   }),
 });
@@ -24,16 +21,15 @@ export const createEndpointSchema = z.object({
 export type CreateEndpoint = z.infer<typeof createEndpointSchema>;
 
 export const updateEndpointSchema = z.object({
-  request: z.object({
-    url: z.url({ error: 'url must be https', protocol: /^https$/ }).optional(),
-    headers: z.record(z.string(), z.union([
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.array(z.string())
-    ])).optional(),
-    method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']).optional(),
-  }).optional(),
+  request: z
+    .object({
+      url: z.url({ error: 'url must be https', protocol: /^https$/ }).optional(),
+      headers: z
+        .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]))
+        .optional(),
+      method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']).optional(),
+    })
+    .optional(),
   description: z.string().optional(),
   eventTypes: z.array(z.string().min(1)).nullable().optional(),
   secret: z.string().min(3).optional(),
