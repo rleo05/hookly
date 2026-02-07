@@ -61,7 +61,10 @@ export const processWebhookMessage = async (
       return;
     }
 
-    safeSet(`event:${data.eventId}`, JSON.stringify(event.payload), { NX: true, EX: 60 * 60 });
+    await safeSet(`event:${data.eventId}`, JSON.stringify(event.payload), {
+      NX: true,
+      EX: 60 * 60,
+    });
 
     await prisma.eventAttempt.createMany({
       data: endpointRoutings.map((endpointRouting) => ({
