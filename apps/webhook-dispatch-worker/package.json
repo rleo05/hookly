@@ -13,9 +13,9 @@
   },
   "type": "module",
   "dependencies": {
-    "@webhook-orchestrator/database": "*",
-    "@webhook-orchestrator/env": "*",
-    "@webhook-orchestrator/queue": "*",
+    "@hookly/database": "*",
+    "@hookly/env": "*",
+    "@hookly/queue": "*",
     "ipaddr.js": "^2.3.0",
     "p-limit": "^7.3.0",
     "undici": "^7.20.0"

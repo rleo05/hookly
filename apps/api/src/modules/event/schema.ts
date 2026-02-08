@@ -1,4 +1,4 @@
-import type { Prisma } from '@webhook-orchestrator/database';
+import type { Prisma } from '@hookly/database';
 import { z } from 'zod';
 import { ApiError } from '../../shared/errors.js';
 import type { PaginationResult } from '../../shared/schema.js';

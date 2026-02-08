@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: webhook-orchestrator-pg
+    container_name: hookly-pg
     ports:
       - "5432:5432"
     environment:
@@ -13,7 +13,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
-    container_name: webhook-orchestrator-redis
+    container_name: hookly-redis
     command: >
       redis-server 
       --appendonly yes
@@ -26,8 +26,8 @@ services:
       - redis_data:/data
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: webhook-orchestrator-rabbitmq
-    hostname: webhook-orchestrator-rabbitmq
+    container_name: hookly-rabbitmq
+    hostname: hookly-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"

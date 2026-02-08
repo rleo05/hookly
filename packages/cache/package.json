@@ -1,5 +1,5 @@
 {
-    "name": "@webhook-orchestrator/cache",
+    "name": "@hookly/cache",
     "version": "0.0.1",
     "type": "module",
     "main": "./dist/index.js",
@@ -15,7 +15,7 @@
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
-        "@webhook-orchestrator/env": "*",
+        "@hookly/env": "*",
         "redis": "^5.0.0"
     },
     "devDependencies": {

@@ -1,4 +1,4 @@
-import { env } from '@webhook-orchestrator/env';
+import { env } from '@hookly/env';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { auth } from '../../lib/better-auth.js';
 

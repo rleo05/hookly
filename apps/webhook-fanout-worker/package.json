@@ -19,9 +19,9 @@
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
-        "@webhook-orchestrator/database": "*",
-        "@webhook-orchestrator/env": "*",
-        "@webhook-orchestrator/queue": "*",
+        "@hookly/database": "*",
+        "@hookly/env": "*",
+        "@hookly/queue": "*",
         "p-limit": "^7.2.0"
     },
     "devDependencies": {

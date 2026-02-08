@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { redis } from '@webhook-orchestrator/cache';
+import { redis } from '@hookly/cache';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import type { CreateEvent } from '../modules/event/schema.js';

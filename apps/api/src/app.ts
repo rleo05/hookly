@@ -1,8 +1,8 @@
 import cors from '@fastify/cors';
-import { initRedis, shutdownRedis } from '@webhook-orchestrator/cache';
-import { pingDatabase, shutdownDatabase } from '@webhook-orchestrator/database';
-import { env } from '@webhook-orchestrator/env';
-import { rabbitService } from '@webhook-orchestrator/queue';
+import { initRedis, shutdownRedis } from '@hookly/cache';
+import { pingDatabase, shutdownDatabase } from '@hookly/database';
+import { env } from '@hookly/env';
+import { rabbitService } from '@hookly/queue';
 import Fastify from 'fastify';
 import {
   serializerCompiler,

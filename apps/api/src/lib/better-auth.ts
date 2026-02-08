@@ -1,5 +1,5 @@
-import { prisma } from '@webhook-orchestrator/database';
-import { env } from '@webhook-orchestrator/env';
+import { prisma } from '@hookly/database';
+import { env } from '@hookly/env';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 

@@ -1,9 +1,9 @@
 import crypto from 'node:crypto';
-import { safeGet, safeSet } from '@webhook-orchestrator/cache';
-import { type Prisma, prisma } from '@webhook-orchestrator/database';
-import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
-import { webhookDispatchConsumer, webhookDispatchProducer } from '@webhook-orchestrator/queue';
-import type { WebhookDispatchPayload } from '@webhook-orchestrator/queue/constants';
+import { safeGet, safeSet } from '@hookly/cache';
+import { type Prisma, prisma } from '@hookly/database';
+import type { MessagePropertyHeaders } from '@hookly/queue';
+import { webhookDispatchConsumer, webhookDispatchProducer } from '@hookly/queue';
+import type { WebhookDispatchPayload } from '@hookly/queue/constants';
 import pLimit from 'p-limit';
 import { request } from 'undici';
 import client, { NotPublicIPError } from './http-client';

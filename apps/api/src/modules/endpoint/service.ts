@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { Prisma, prisma } from '@webhook-orchestrator/database';
+import { Prisma, prisma } from '@hookly/database';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';
 import { getEventTypeIds, normalizeEventTypeName } from '../event/service.js';

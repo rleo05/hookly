@@ -1,5 +1,5 @@
-import { Prisma, prisma } from '@webhook-orchestrator/database';
-import { webhookFanoutProducer } from '@webhook-orchestrator/queue';
+import { Prisma, prisma } from '@hookly/database';
+import { webhookFanoutProducer } from '@hookly/queue';
 import type { Pagination } from '../../shared/schema.js';
 import { generateNanoId } from '../../shared/utils.js';
 import { findApplicationByUidAndUser } from '../application/service.js';

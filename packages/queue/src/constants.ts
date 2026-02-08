@@ -1,6 +1,6 @@
 import type { Options } from 'amqplib';
 import { z } from 'zod';
-import { Prisma } from '@webhook-orchestrator/database';
+import { Prisma } from '@hookly/database';
 
 export interface QueueDefinition {
     name: string;

@@ -1,12 +1,12 @@
-import { safeSet } from '@webhook-orchestrator/cache';
-import { prisma } from '@webhook-orchestrator/database';
-import type { MessagePropertyHeaders } from '@webhook-orchestrator/queue';
+import { safeSet } from '@hookly/cache';
+import { prisma } from '@hookly/database';
+import type { MessagePropertyHeaders } from '@hookly/queue';
 import {
   webhookDispatchProducer,
   webhookFanoutConsumer,
   webhookFanoutProducer,
-} from '@webhook-orchestrator/queue';
-import type { WebhookFanoutPayload } from '@webhook-orchestrator/queue/constants';
+} from '@hookly/queue';
+import type { WebhookFanoutPayload } from '@hookly/queue/constants';
 import pLimit from 'p-limit';
 
 const MAX_RETRIES = 5;

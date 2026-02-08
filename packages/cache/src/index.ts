@@ -1,4 +1,4 @@
-import { env } from '@webhook-orchestrator/env';
+import { env } from '@hookly/env';
 import { createClient, type RedisClientType, type SetOptions } from 'redis';
 
 const MAX_RETRIES = 5;
