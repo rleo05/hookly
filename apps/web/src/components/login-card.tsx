@@ -3,9 +3,36 @@
 import { Webhook, ArrowRight, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { GoogleButton } from "./google-button";
-import { FormInput } from "./form-input";
+import { Input } from "./form/input";
+import { PasswordInput } from "./form/password-input";
+import { authClient } from "@/src/lib/auth-client";
 
 export default function LoginCard() {
+  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!email || !password) return;
+
+    const result = await authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: `${window.location.origin}/dashboard`,
+      },
+    );
+
+    if (result.error) {
+      console.log(result.error);
+      return;
+    }
+
+    console.log(result);
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 text-text-main relative overflow-hidden">
 
@@ -39,7 +66,7 @@ export default function LoginCard() {
         </div>
 
         <div className="px-8 pb-8 space-y-5">
-          <GoogleButton label="Sign in with Google" />
+          <GoogleButton label="Sign in with Google"/>
 
           <div className="relative flex items-center py-1">
             <div className="flex-grow border-t border-border"></div>
@@ -47,12 +74,11 @@ export default function LoginCard() {
             <div className="flex-grow border-t border-border"></div>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <FormInput id="email" label="Email" type="email" placeholder="name@company.com" icon={Mail} />
-            <FormInput
+          <form className="space-y-4" onSubmit={(e) => handleLogin(e)}>
+            <Input id="email" label="Email" type="email" placeholder="name@company.com" icon={Mail} autoComplete="email" required />
+            <PasswordInput
               id="password"
               label="Password"
-              type="password"
               placeholder="••••••••"
               icon={Lock}
               trailing={

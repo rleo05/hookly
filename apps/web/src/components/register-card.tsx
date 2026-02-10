@@ -3,9 +3,40 @@
 import { Webhook, ArrowRight, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { GoogleButton } from "./google-button";
-import { FormInput } from "./form-input";
+import { Input } from "./form/input";
+import { authClient } from "@/src/lib/auth-client";
+import { PasswordInput } from "./form/password-input";
+import { useRouter } from "next/navigation";
 
 export default function RegisterCard() {
+    const router = useRouter();
+
+    const handleRegister = async (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+
+        if (!name || !email || !password) return;
+
+        const result = await authClient.signUp.email(
+            {
+                email,
+                password,
+                name,
+            },
+        );
+
+        if (result.error) {
+            console.log(result.error);
+            return;
+        }
+
+        router.push('/dashboard');
+    }
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 text-text-main relative overflow-hidden">
 
@@ -47,10 +78,10 @@ export default function RegisterCard() {
                         <div className="flex-grow border-t border-border"></div>
                     </div>
 
-                    <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                        <FormInput id="name" label="Name" type="text" placeholder="John Doe" icon={User} />
-                        <FormInput id="email" label="Email" type="email" placeholder="name@company.com" icon={Mail} />
-                        <FormInput id="password" label="Password" type="password" placeholder="••••••••" icon={Lock} />
+                    <form className="space-y-4" onSubmit={(e) => handleRegister(e)}>
+                        <Input id="name" label="Name" type="text" placeholder="John Doe" icon={User} required />
+                        <Input id="email" label="Email" type="email" placeholder="name@company.com" icon={Mail} autoComplete="email" required />
+                        <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} />
 
                         <button
                             className="w-full font-semibold h-12 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer"
