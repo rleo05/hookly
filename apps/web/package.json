@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check app",
-    "lint:fix": "biome check --write app"
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src"
   },
   "dependencies": {
     "better-auth": "^1.4.18",

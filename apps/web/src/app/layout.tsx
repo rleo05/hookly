@@ -20,10 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} font-sans antialiased`} style={{ fontFamily: 'var(--font-sans)' }}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+      <body
+        className={`${fontSans.variable} font-sans antialiased`}
+        style={{ fontFamily: 'var(--font-sans)' }}
+      >
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
