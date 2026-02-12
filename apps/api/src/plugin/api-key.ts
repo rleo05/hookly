@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import type { User } from '../lib/better-auth.js';
+import type { User } from '@hookly/auth';
 import { validate } from '../modules/api-key/service.js';
 
 declare module 'fastify' {

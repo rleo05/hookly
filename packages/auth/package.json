@@ -1,0 +1,25 @@
+{
+    "name": "@hookly/auth",
+    "version": "0.0.1",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "type-check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@hookly/database": "*",
+        "@hookly/env": "*",
+        "better-auth": "^1.4.9"
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3"
+    }
+}

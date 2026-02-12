@@ -1,6 +1,6 @@
 import { env } from '@hookly/env';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { auth } from '../../lib/better-auth.js';
+import { auth } from '@hookly/auth';
 
 export async function authRoutes(fastify: FastifyInstance) {
   fastify.route({
