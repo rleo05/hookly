@@ -83,23 +83,17 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-surface p-5"
-            style={{
-              border: '1px solid var(--border)',
-              borderRight: '4px solid var(--border-bold)',
-              borderBottom: '4px solid var(--border-bold)',
-              borderRadius: '16px',
-            }}
+            className="bg-surface p-5 border border-border border-r-[4px] border-r-border-bold border-b-[4px] border-b-border-bold rounded-2xl"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-text-muted text-sm font-medium">{stat.label}</span>
-              <div className="p-1.5 rounded-lg" style={{ backgroundColor: 'var(--input)' }}>
-                <stat.icon size={16} style={{ color: 'var(--primary)' }} />
+              <div className="p-1.5 rounded-lg bg-input">
+                <stat.icon size={16} className="text-primary" />
               </div>
             </div>
             <p className="text-2xl font-extrabold tracking-tight text-text-main">{stat.value}</p>
             <div className="flex items-center gap-1 mt-1.5">
-              <TrendingUp size={12} style={{ color: 'var(--accent)' }} />
+              <TrendingUp size={12} className="text-accent" />
               <span className="text-xs text-text-muted">{stat.change}</span>
             </div>
           </div>
@@ -107,15 +101,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          className="lg:col-span-2 bg-surface"
-          style={{
-            border: '1px solid var(--border)',
-            borderRight: '4px solid var(--border-bold)',
-            borderBottom: '4px solid var(--border-bold)',
-            borderRadius: '16px',
-          }}
-        >
+        <div className="lg:col-span-2 bg-surface border border-border border-r-[4px] border-r-border-bold border-b-[4px] border-b-border-bold rounded-2xl">
           <div className="p-5 pb-0 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-text-main">Recent Events</h2>
@@ -123,8 +109,7 @@ export default function Dashboard() {
             </div>
             <a
               href="/events"
-              className="flex items-center gap-1 text-xs font-semibold transition-colors"
-              style={{ color: 'var(--primary)' }}
+              className="flex items-center gap-1 text-xs font-semibold transition-colors text-primary"
             >
               View all
               <ArrowRight size={14} />
@@ -153,10 +138,7 @@ export default function Dashboard() {
                   <tr key={event.id} className="border-b border-border last:border-0">
                     <td className="py-3">
                       <div className="flex items-center gap-2">
-                        <code
-                          className="text-xs px-1.5 py-0.5 rounded-md font-mono"
-                          style={{ backgroundColor: 'var(--input)', color: 'var(--primary)' }}
-                        >
+                        <code className="text-xs px-1.5 py-0.5 rounded-md font-mono bg-input text-primary">
                           {event.type}
                         </code>
                       </div>
@@ -164,14 +146,11 @@ export default function Dashboard() {
                     <td className="py-3 text-text-muted">{event.app}</td>
                     <td className="py-3">
                       <span
-                        className="text-xs font-semibold px-2 py-1 rounded-full"
-                        style={{
-                          backgroundColor:
-                            event.status === 'delivered'
-                              ? 'rgba(34, 197, 94, 0.1)'
-                              : 'rgba(239, 68, 68, 0.1)',
-                          color: event.status === 'delivered' ? '#22c55e' : '#ef4444',
-                        }}
+                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                          event.status === 'delivered'
+                            ? 'bg-green-500/10 text-green-500'
+                            : 'bg-red-500/10 text-red-500'
+                        }`}
                       >
                         {event.status}
                       </span>
@@ -193,20 +172,11 @@ export default function Dashboard() {
             <a
               key={action.label}
               href={action.href}
-              className="block bg-surface p-4 transition-all duration-200 group"
-              style={{
-                border: '1px solid var(--border)',
-                borderRight: '4px solid var(--border-bold)',
-                borderBottom: '4px solid var(--border-bold)',
-                borderRadius: '16px',
-              }}
+              className="block bg-surface p-4 transition-all duration-200 group border border-border border-r-[4px] border-r-border-bold border-b-[4px] border-b-border-bold rounded-2xl"
             >
               <div className="flex items-center gap-3">
-                <div
-                  className="p-2 rounded-xl transition-all duration-200"
-                  style={{ backgroundColor: 'var(--input)' }}
-                >
-                  <action.icon size={18} style={{ color: 'var(--primary)' }} />
+                <div className="p-2 rounded-xl transition-all duration-200 bg-input">
+                  <action.icon size={18} className="text-primary" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-text-main">{action.label}</p>

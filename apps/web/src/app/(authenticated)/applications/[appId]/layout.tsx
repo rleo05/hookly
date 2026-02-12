@@ -1,5 +1,5 @@
-import { Sidebar } from '../../../../components/sidebar/sidebar';
 import { Header } from '../../../../components/header';
+import { Sidebar } from '../../../../components/sidebar/sidebar';
 
 export default async function ApplicationLayout({
   children,
@@ -11,12 +11,12 @@ export default async function ApplicationLayout({
   const { appId } = await params;
 
   return (
-    <>
+    <div className="flex h-screen">
       <Sidebar variant="application" appId={appId} />
-      <main className="ml-[260px] px-8">
-        <Header/>
+      <main className="flex-1 overflow-auto px-8">
+        <Header />
         {children}
       </main>
-    </>
+    </div>
   );
 }

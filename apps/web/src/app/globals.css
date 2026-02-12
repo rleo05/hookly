@@ -16,6 +16,9 @@
 
   --text-main: #1e1b4b;
   --text-muted: #6b7280;
+
+  --hover-bg: #f0ecfc;
+  --hover-text: #5b21b6;
 }
 
 .dark {
@@ -34,6 +37,9 @@
 
   --text-main: #f0eeff;
   --text-muted: #8b8b9e;
+
+  --hover-bg: #1c1c2e;
+  --hover-text: #c4b5fd;
 }
 
 @theme {
@@ -47,4 +53,8 @@
   --color-input: var(--input);
   --color-text-main: var(--text-main);
   --color-text-muted: var(--text-muted);
+  --color-hover-bg: var(--hover-bg);
+  --color-hover-text: var(--hover-text);
 }
+
+@custom-variant dark (&:where(.dark, .dark *));

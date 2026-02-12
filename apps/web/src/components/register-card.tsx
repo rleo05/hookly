@@ -50,25 +50,10 @@ export default function RegisterCard() {
         style={{ backgroundColor: 'rgba(167, 139, 250, 0.15)' }}
       />
 
-      <div
-        className="w-full max-w-[420px] bg-surface relative z-10"
-        style={{
-          border: '1px solid var(--border)',
-          borderRight: '4px solid var(--border-bold)',
-          borderBottom: '4px solid var(--border-bold)',
-          borderRadius: '16px',
-        }}
-      >
+      <div className="w-full max-w-[420px] bg-surface relative z-10 border border-border border-r-[4px] border-r-border-bold border-b-[4px] border-b-border-bold rounded-2xl">
         <div className="p-8 pb-6">
           <div className="flex items-center gap-2.5 mb-8">
-            <div
-              className="p-2 rounded-xl"
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: 'var(--primary-foreground)',
-                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
-              }}
-            >
+            <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-[0_4px_12px_rgba(124,58,237,0.25)]">
               <Webhook size={22} strokeWidth={2.5} />
             </div>
             <span className="font-bold text-xl tracking-tight">Hookly</span>
@@ -105,12 +90,8 @@ export default function RegisterCard() {
             <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} />
 
             <button
-              className="w-full font-semibold h-12 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer group"
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: 'var(--primary-foreground)',
-                boxShadow: '0 4px 14px rgba(124, 58, 237, 0.3)',
-              }}
+              type="submit"
+              className="w-full font-semibold h-12 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer group bg-primary text-primary-foreground shadow-[0_4px_14px_rgba(124,58,237,0.3)]"
             >
               Create account
               <ArrowRight
@@ -121,16 +102,12 @@ export default function RegisterCard() {
           </form>
         </div>
 
-        <div
-          className="border-t border-border px-8 py-5 text-center"
-          style={{ borderBottomLeftRadius: '16px', borderBottomRightRadius: '12px' }}
-        >
+        <div className="border-t border-border px-8 py-5 text-center rounded-b-xl">
           <p className="text-sm text-text-muted">
             Already have an account?{' '}
             <Link
               href="/auth/sign-in"
-              className="font-semibold hover:underline transition-colors"
-              style={{ color: 'var(--primary)' }}
+              className="font-semibold hover:underline transition-colors text-primary"
             >
               Sign in
             </Link>

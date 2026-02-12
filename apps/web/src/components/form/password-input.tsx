@@ -36,7 +36,6 @@ export function PasswordInput({
           name={id}
           type={showPassword ? 'text' : 'password'}
           className="w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pl-11 pr-12 outline-none transition-all duration-200 placeholder:text-text-muted/90"
-          style={{ backgroundColor: 'var(--input)' }}
           placeholder={placeholder}
           autoComplete="current-password"
           required

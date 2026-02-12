@@ -1,68 +1,70 @@
 'use client';
 
-import { LogOut, Settings, Webhook } from 'lucide-react';
+import { PanelLeft, Settings, Webhook } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { AppMenu } from './app-menu';
 import { MainMenu } from './main-menu';
+import { SidebarLink } from './sidebar-link';
 
 const bottomItems = [{ label: 'Settings', href: '/dashboard/settings', icon: Settings }];
 
-type SidebarProps = { variant: 'main' } | { variant: 'application'; appId: string };
+type SidebarProps = 
+  | { variant: 'main' } 
+  | { variant: 'application'; appId: string };
 
 export function Sidebar(props: SidebarProps) {
-  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(true);
+
+  const toggleSideBar = () => {
+    setIsOpen((prev) => !prev);
+  };
 
   return (
     <aside
-      className="fixed left-0 top-0 h-screen w-[260px] bg-surface flex flex-col z-50"
-      style={{
-        borderRight: '1px solid var(--border)',
-      }}
+      className={`h-full bg-surface flex flex-col ${isOpen ? 'w-[260px]' : 'w-[60px]'} overflow-hidden border-r border-border`}
     >
-      <div className="p-6 pb-8">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div
-            className="p-2 rounded-xl"
-            style={{
-              backgroundColor: 'var(--primary)',
-              color: 'var(--primary-foreground)',
-              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
-            }}
-          >
-            <Webhook size={20} strokeWidth={2.5} />
-          </div>
-          <span className="font-bold text-lg tracking-tight text-text-main">Hookly</span>
-        </Link>
+      <div
+        className={`flex p-6 pb-8 ${isOpen ? 'justify-between items-center' : 'flex-col items-center gap-4'}`}
+      >
+        <div>
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-[0_4px_12px_rgba(124,58,237,0.25)]">
+              <Webhook size={18} strokeWidth={2.5} />
+            </div>
+            <span
+              className={`font-bold text-lg tracking-tight text-text-main ${isOpen ? '' : 'hidden'}`}
+            >
+              Hookly
+            </span>
+          </Link>
+        </div>
+
+        <button
+          type="button"
+          className="p-2 rounded-xl cursor-pointer transition-all duration-200 text-text-muted"
+          onClick={toggleSideBar}
+        >
+          <PanelLeft size={20} />
+        </button>
       </div>
 
-      {props.variant === 'main' ? <MainMenu /> : <AppMenu appId={props.appId} />}
+      {props.variant === 'main' ? (
+        <MainMenu isOpen={isOpen} />
+      ) : (
+        <AppMenu appId={props.appId} isOpen={isOpen} />
+      )}
 
-      <div className="px-3 pb-4 space-y-1 border-t border-border pt-4 mt-2">
-        {bottomItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
-              style={{
-                backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                color: isActive ? 'var(--primary-foreground)' : 'var(--text-muted)',
-              }}
-            >
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-        <button
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 w-full cursor-pointer"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          <LogOut size={18} />
-          Sign out
-        </button>
+      <div className={`pb-4 space-y-1 pt-4 mt-2 ${isOpen ? 'px-3' : 'px-2'}`}>
+        {bottomItems.map((item) => (
+          <SidebarLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            isOpen={isOpen}
+          />
+        ))}
       </div>
     </aside>
   );

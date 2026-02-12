@@ -1,13 +1,11 @@
 'use client';
 
-import { Activity, ArrowLeft, Box, Eye, Radio, Tags } from 'lucide-react';
+import { Activity, ArrowLeft, Box, Building2, Eye, Radio, Tags } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { SidebarLink } from './sidebar-link';
 import type { NavItem } from './types';
 
-export function AppMenu({ appId }: { appId: string }) {
-  const pathname = usePathname();
-
+export function AppMenu({ appId, isOpen }: { appId: string; isOpen: boolean }) {
   const navItems: NavItem[] = [
     { label: 'Overview', href: `/applications/${appId}`, icon: Eye },
     { label: 'Events', href: `/applications/${appId}/events`, icon: Activity },
@@ -17,54 +15,38 @@ export function AppMenu({ appId }: { appId: string }) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="px-3 mb-2">
+      <div className={`${isOpen ? 'px-3' : 'px-2'} mb-2`}>
         <Link
           href="/applications"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-          style={{ color: 'var(--text-muted)' }}
+          className={`flex items-center rounded-xl text-sm font-medium transition-all duration-200 text-text-muted
+            ${isOpen ? 'gap-2 px-3 py-2' : 'w-10 h-10 justify-center'}`}
         >
-          <ArrowLeft size={16} />
-          Back to applications
+          <ArrowLeft size={18} />
+          {isOpen && 'Back to applications'}
         </Link>
       </div>
 
-      <div className="px-5 mb-4">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="p-1.5 rounded-lg"
-            style={{
-              backgroundColor: 'var(--input)',
-              color: 'var(--primary)',
-            }}
-          >
-            <Box size={16} />
+      <div className={`${isOpen ? 'px-5 mb-4' : 'px-2 mb-2'}`}>
+        <div
+          className={`flex items-center ${isOpen ? 'gap-2.5' : 'w-10 h-10 justify-center rounded-xl'}`}
+        >
+          <div className="p-1.5 rounded-lg bg-input text-primary">
+            <Building2 size={18} />
           </div>
-          <span className="font-semibold text-sm text-text-main truncate">{appId}</span>
+          {isOpen && <span className="font-semibold text-sm text-text-main truncate">{appId}</span>}
         </div>
       </div>
 
-      <nav className="flex-1 px-3 space-y-1">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === `/applications/${appId}`
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200"
-              style={{
-                backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                color: isActive ? 'var(--primary-foreground)' : 'var(--text-muted)',
-                boxShadow: isActive ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none',
-              }}
-            >
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className={`flex-1 space-y-1 ${isOpen ? 'px-3' : 'px-2'}`}>
+        {navItems.map((item) => (
+          <SidebarLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            isOpen={isOpen}
+          />
+        ))}
       </nav>
     </div>
   );
