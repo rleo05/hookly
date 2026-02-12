@@ -11,9 +11,12 @@ import {
 } from 'fastify-type-provider-zod';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationRoutes from './modules/application/routes.js';
+import applicationAppRoutes from './modules/application/app-routes.js';
 import { authRoutes } from './modules/auth/routes.js';
 import endpointRoutes from './modules/endpoint/routes.js';
+import endpointAppRoutes from './modules/endpoint/app-routes.js';
 import eventRoutes from './modules/event/routes.js';
+import eventAppRoutes from './modules/event/app-routes.js';
 import { userRoutes } from './modules/user/routes.js';
 import apiKeyPlugin from './plugin/api-key.js';
 import authPlugin from './plugin/auth.js';
@@ -48,6 +51,10 @@ fastify.register(apiKeyRoutes, { prefix: '/api-key' });
 fastify.register(applicationRoutes, { prefix: '/application' });
 fastify.register(endpointRoutes, { prefix: '/endpoint' });
 fastify.register(eventRoutes);
+
+fastify.register(applicationAppRoutes, { prefix: '/app/application' });
+fastify.register(endpointAppRoutes, { prefix: '/app/endpoint' });
+fastify.register(eventAppRoutes, { prefix: '/app' });
 
 const start = async () => {
   try {
