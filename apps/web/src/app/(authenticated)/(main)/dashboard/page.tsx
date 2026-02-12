@@ -55,19 +55,19 @@ const quickActions = [
     label: 'Create Application',
     description: 'Set up a new webhook source',
     icon: Plus,
-    href: '/dashboard/applications',
+    href: '/applications',
   },
   {
     label: 'Add Endpoint',
     description: 'Register a new delivery target',
     icon: Radio,
-    href: '/dashboard/endpoints',
+    href: '/endpoints',
   },
   {
     label: 'View Events',
     description: 'Browse event history and logs',
     icon: Eye,
-    href: '/dashboard/events',
+    href: '/events',
   },
 ];
 
@@ -122,7 +122,7 @@ export default function Dashboard() {
               <p className="text-xs text-text-muted mt-0.5">Latest webhook deliveries</p>
             </div>
             <a
-              href="/dashboard/events"
+              href="/events"
               className="flex items-center gap-1 text-xs font-semibold transition-colors"
               style={{ color: 'var(--primary)' }}
             >

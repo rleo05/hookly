@@ -35,25 +35,19 @@ export function PasswordInput({
           id={id}
           name={id}
           type={showPassword ? 'text' : 'password'}
-          className="w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pl-11 pr-4 outline-none transition-all duration-200 placeholder:text-text-muted/90"
+          className="w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pl-11 pr-12 outline-none transition-all duration-200 placeholder:text-text-muted/90"
           style={{ backgroundColor: 'var(--input)' }}
           placeholder={placeholder}
           autoComplete="current-password"
           required
         />
-        {showPassword ? (
-          <EyeOff
-            onClick={() => setShowPassword(false)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted cursor-pointer"
-            size={18}
-          />
-        ) : (
-          <Eye
-            onClick={() => setShowPassword(true)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted cursor-pointer"
-            size={18}
-          />
-        )}
+        <button
+          className="absolute inset-y-0 right-0 text-text-muted border border-transparent rounded-xl px-2.5 flex items-center justify-center hover:bg-primary/10 hover:text-primary focus-visible:border-primary focus-visible:bg-primary/10 focus-visible:text-primary transition-all outline-none"
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
       </div>
     </div>
   );

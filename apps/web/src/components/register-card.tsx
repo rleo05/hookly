@@ -105,7 +105,7 @@ export default function RegisterCard() {
             <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} />
 
             <button
-              className="w-full font-semibold h-12 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer"
+              className="w-full font-semibold h-12 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer group"
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
@@ -113,7 +113,10 @@ export default function RegisterCard() {
               }}
             >
               Create account
-              <ArrowRight size={18} />
+              <ArrowRight
+                className="group-hover:translate-x-2 transition-transform duration-200"
+                size={18}
+              />
             </button>
           </form>
         </div>

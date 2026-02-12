@@ -1,30 +1,16 @@
 'use client';
 
-import {
-  Activity,
-  Box,
-  KeyRound,
-  LayoutDashboard,
-  LogOut,
-  Radio,
-  Settings,
-  Webhook,
-} from 'lucide-react';
+import { LogOut, Settings, Webhook } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Applications', href: '/dashboard/applications', icon: Box },
-  { label: 'Endpoints', href: '/dashboard/endpoints', icon: Radio },
-  { label: 'Events', href: '/dashboard/events', icon: Activity },
-  { label: 'Event Types', href: '/dashboard/event-types', icon: Activity },
-  { label: 'API Keys', href: '/dashboard/api-keys', icon: KeyRound },
-];
+import { AppMenu } from './app-menu';
+import { MainMenu } from './main-menu';
 
 const bottomItems = [{ label: 'Settings', href: '/dashboard/settings', icon: Settings }];
 
-export function Sidebar() {
+type SidebarProps = { variant: 'main' } | { variant: 'application'; appId: string };
+
+export function Sidebar(props: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -50,26 +36,7 @@ export function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 space-y-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
-              style={{
-                backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                color: isActive ? 'var(--primary-foreground)' : 'var(--text-muted)',
-                boxShadow: isActive ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none',
-              }}
-            >
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      {props.variant === 'main' ? <MainMenu /> : <AppMenu appId={props.appId} />}
 
       <div className="px-3 pb-4 space-y-1 border-t border-border pt-4 mt-2">
         {bottomItems.map((item) => {
