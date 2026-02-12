@@ -1,44 +1,16 @@
-import { z } from 'zod';
 import { ApiError } from '../../shared/errors.js';
-import type { PaginationResult } from '../../shared/schema.js';
 
-export const createApplicationSchema = z.object({
-  name: z.string().min(3).max(100),
-  externalId: z.string().min(1).optional(),
-});
-
-export type CreateApplication = z.infer<typeof createApplicationSchema>;
-
-export const applicationItemSchema = z.object({
-  uid: z.string(),
-  externalId: z
-    .string()
-    .min(1)
-    .nullable()
-    .transform((v) => v ?? undefined),
-  name: z.string(),
-  createdAt: z.date(),
-});
-
-export type ApplicationItem = z.infer<typeof applicationItemSchema>;
-
-export type ApplicationList = {
-  applications: ApplicationItem[];
-  pagination: PaginationResult;
-};
-
-export const applicationParamUidSchema = z.object({
-  uid: z.string().min(1),
-});
-
-export type ApplicationParamUid = z.infer<typeof applicationParamUidSchema>;
-
-export const updateApplicationSchema = z.object({
-  name: z.string().min(3).max(100).optional(),
-  externalId: z.string().min(1).optional(),
-});
-
-export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
+export {
+  createApplicationSchema,
+  type CreateApplication,
+  applicationItemSchema,
+  type ApplicationItem,
+  type ApplicationList,
+  applicationParamUidSchema,
+  type ApplicationParamUid,
+  updateApplicationSchema,
+  type UpdateApplication,
+} from '@hookly/api-types';
 
 export class ApplicationExternalIdConflict extends ApiError {
   constructor() {
