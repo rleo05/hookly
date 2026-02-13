@@ -1,6 +1,6 @@
+import { auth } from '@hookly/auth';
 import { env } from '@hookly/env';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { auth } from '@hookly/auth';
 
 export async function authRoutes(fastify: FastifyInstance) {
   fastify.route({

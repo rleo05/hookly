@@ -4,12 +4,12 @@ import { redirect } from 'next/navigation';
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   });
 
   if (!session) {
     redirect('/auth/sign-in');
   }
 
-  return <div className="min-h-screen bg-background">{children}</div>;
+  return <div className="bg-background">{children}</div>;
 }

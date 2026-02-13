@@ -25,6 +25,7 @@ export function ThemeToggle() {
       }}
       onClick={toggleTheme}
       aria-label="Toggle theme"
+      title={`Switch theme`}
     >
       <Sun className="hidden dark:block" size={18} />
       <Moon className="block dark:hidden" size={18} />

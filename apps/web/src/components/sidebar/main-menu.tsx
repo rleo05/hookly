@@ -1,18 +1,18 @@
 'use client';
 
-import { Box, KeyRound, LayoutDashboard } from 'lucide-react';
+import { Building2, KeyRound, LayoutDashboard } from 'lucide-react';
 import { SidebarLink } from './sidebar-link';
 import type { NavItem } from './types';
 
 export function MainMenu({ isOpen }: { isOpen: boolean }) {
   const navItems: NavItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Applications', href: '/applications', icon: Box },
+    { label: 'Applications', href: '/applications', icon: Building2 },
     { label: 'API Keys', href: '/keys', icon: KeyRound },
   ];
 
   return (
-    <nav className={`flex-1 space-y-1 ${isOpen ? 'px-3' : 'px-2 items-center'}`}>
+    <ul className={`flex-1 space-y-1 ${isOpen ? 'px-3' : 'px-2 items-center'}`}>
       {navItems.map((item) => (
         <SidebarLink
           key={item.href}
@@ -22,6 +22,6 @@ export function MainMenu({ isOpen }: { isOpen: boolean }) {
           isOpen={isOpen}
         />
       ))}
-    </nav>
+    </ul>
   );
 }

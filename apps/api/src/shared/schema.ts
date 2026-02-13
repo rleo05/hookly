@@ -1,6 +1,6 @@
 export {
-  paginationResultSchema,
-  type PaginationResult,
-  paginationSchema,
   type Pagination,
+  type PaginationResult,
+  paginationResultSchema,
+  paginationSchema,
 } from '@hookly/api-types';

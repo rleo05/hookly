@@ -1,6 +1,6 @@
+import { auth, type Session, type User } from '@hookly/auth';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { auth, type Session, type User } from '@hookly/auth';
 
 declare module 'fastify' {
   interface FastifyRequest {

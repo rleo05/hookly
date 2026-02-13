@@ -1,17 +1,17 @@
 import { ApiError } from '../../shared/errors.js';
 
 export {
-  createEndpointSchema,
   type CreateEndpoint,
-  updateEndpointSchema,
-  type UpdateEndpoint,
-  endpointParamIdSchema,
-  type EndpointParamId,
-  listEndpointQuerySchema,
-  type ListEndpointQuery,
+  createEndpointSchema,
   type EndpointItem,
   type EndpointList,
+  type EndpointParamId,
   type EndpointResponse,
+  endpointParamIdSchema,
+  type ListEndpointQuery,
+  listEndpointQuerySchema,
+  type UpdateEndpoint,
+  updateEndpointSchema,
 } from '@hookly/api-types';
 
 export class EndpointNotFound extends ApiError {
