@@ -2,12 +2,16 @@
 
 import { ArrowRight, Lock, Mail, Webhook } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { authClient } from '@/src/lib/auth-client';
 import { Input } from './form/input';
 import { PasswordInput } from './form/password-input';
 import { GoogleButton } from './google-button';
 
 export default function LoginCard() {
+  const router = useRouter();
+
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -24,11 +28,11 @@ export default function LoginCard() {
     });
 
     if (result.error) {
-      console.log(result.error);
+      toast.error(result.error.message ?? 'Failed to sign in.');
       return;
     }
 
-    console.log(result);
+    toast.success('Signed in successfully!');
   };
 
   return (
@@ -81,12 +85,15 @@ export default function LoginCard() {
               icon={Mail}
               autoComplete="email"
               required
+              maxLength={255}
             />
             <PasswordInput
               id="password"
               label="Password"
               placeholder="••••••••"
               icon={Lock}
+              minLength={8}
+              maxLength={128}
               trailing={
                 <Link
                   href="/auth/forgot-password"

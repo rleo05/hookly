@@ -10,14 +10,15 @@
     "lint:fix": "biome check --write src"
   },
   "dependencies": {
+    "@hookly/api-types": "*",
+    "@hookly/auth": "*",
     "better-auth": "^1.4.18",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
-    "@hookly/api-types": "*",
-    "@hookly/auth": "*",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

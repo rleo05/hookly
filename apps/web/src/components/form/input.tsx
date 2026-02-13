@@ -1,14 +1,10 @@
 import type { LucideIcon } from 'lucide-react';
 
-interface InputProps {
+interface InputProps extends React.ComponentProps<'input'> {
   id: string;
   label?: string;
-  type: string;
-  placeholder?: string;
   icon?: LucideIcon;
   trailing?: React.ReactNode;
-  autoComplete?: string;
-  required?: boolean;
 }
 
 export function Input({
@@ -20,6 +16,7 @@ export function Input({
   trailing,
   autoComplete,
   required,
+  ...rest
 }: InputProps) {
   return (
     <div className="space-y-1.5">
@@ -43,6 +40,7 @@ export function Input({
           placeholder={placeholder}
           autoComplete={autoComplete}
           required={required}
+          {...rest}
         />
       </div>
     </div>

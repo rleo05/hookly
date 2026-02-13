@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { ThemeProvider } from '../components/theme-provider';
 import { SidebarProvider } from '../contexts/sidebar-context';
 
+import { Toaster } from 'sonner';
+
 const fontSans = Space_Grotesk({
   variable: '--font-sans',
   subsets: ['latin'],
@@ -29,6 +31,22 @@ export default async function RootLayout({
         <SidebarProvider defaultOpen={defaultOpen}>
           <ThemeProvider>{children}</ThemeProvider>
         </SidebarProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-main)',
+            },
+            classNames: {
+              success: 'toast-success',
+              error: 'toast-error',
+              warning: 'toast-warning',
+            },
+          }}
+          visibleToasts={1}
+        />
       </body>
     </html>
   );

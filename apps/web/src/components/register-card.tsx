@@ -3,6 +3,7 @@
 import { ArrowRight, Lock, Mail, User, Webhook } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { authClient } from '@/src/lib/auth-client';
 import { Input } from './form/input';
 import { PasswordInput } from './form/password-input';
@@ -28,10 +29,11 @@ export default function RegisterCard() {
     });
 
     if (result.error) {
-      console.log(result.error);
+      toast.error(result.error.message ?? 'Failed to create account.');
       return;
     }
 
+    toast.success('Account created successfully!');
     router.push('/dashboard');
   };
 
@@ -77,7 +79,7 @@ export default function RegisterCard() {
           </div>
 
           <form className="space-y-4" onSubmit={(e) => handleRegister(e)}>
-            <Input id="name" label="Name" type="text" placeholder="John Doe" icon={User} required />
+            <Input id="name" label="Name" type="text" placeholder="John Doe" icon={User} required minLength={3} maxLength={100} />
             <Input
               id="email"
               label="Email"
@@ -86,8 +88,9 @@ export default function RegisterCard() {
               icon={Mail}
               autoComplete="email"
               required
+              maxLength={255}
             />
-            <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} />
+            <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} minLength={8} maxLength={128} />
 
             <button
               type="submit"

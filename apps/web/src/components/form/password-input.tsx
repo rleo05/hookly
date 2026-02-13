@@ -1,10 +1,9 @@
 import { Eye, EyeOff, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 
-interface PasswordInputProps {
+interface PasswordInputProps extends React.ComponentProps<'input'> {
   id: string;
   label?: string;
-  placeholder?: string;
   icon?: LucideIcon;
   trailing?: React.ReactNode;
 }
@@ -15,6 +14,7 @@ export function PasswordInput({
   placeholder,
   icon: Icon,
   trailing,
+  ...rest
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -39,6 +39,7 @@ export function PasswordInput({
           placeholder={placeholder}
           autoComplete="current-password"
           required
+          {...rest}
         />
         <button
           className="absolute inset-y-0 right-0 text-text-muted border border-transparent rounded-xl px-2.5 flex items-center justify-center hover:bg-primary/10 hover:text-primary focus-visible:border-primary focus-visible:bg-primary/10 focus-visible:text-primary transition-all outline-none"

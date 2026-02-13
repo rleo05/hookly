@@ -1,7 +1,8 @@
 import { prisma } from '@hookly/database';
 import { env } from '@hookly/env';
-import { betterAuth } from 'better-auth';
+import { betterAuth, APIError } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { createAuthMiddleware } from 'better-auth/api';
 
 export const auth = betterAuth({
     baseURL: env.server.APP_URL,
@@ -12,6 +13,8 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
+        minPasswordLength: 8,
+        maxPasswordLength: 128,
     },
     socialProviders: {
         google: {
@@ -30,6 +33,18 @@ export const auth = betterAuth({
     },
     verification: {
         modelName: 'Verification',
+    },
+    hooks: {
+        after: createAuthMiddleware(async (ctx) => {
+            if (ctx.path === '/sign-in/email') {
+                const response = (ctx as unknown as { returned: Response }).returned;
+                if (response && !response.ok) {
+                    throw new APIError('UNAUTHORIZED', {
+                        message: 'Invalid credentials',
+                    });
+                }
+            }
+        }),
     },
 });
 
