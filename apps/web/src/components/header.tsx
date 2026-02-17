@@ -2,16 +2,17 @@
 
 import { Bell } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { getHeaderContent } from '@/src/utils/breadcrumbs';
+import { getBreadcrumbs } from '@/src/utils/breadcrumbs';
 import { ThemeToggle } from './theme-toggle';
+import { UserButton } from '@/src/components/user-button'
 
 export function Header() {
   const pathname = usePathname();
-  const headerContent = getHeaderContent(pathname);
+  const breadcrumbs = getBreadcrumbs(pathname);
 
   return (
-    <header className="flex items-center justify-between py-2 border-b border-border">
-      {headerContent}
+    <header className="flex items-center justify-between py-2 pr-2 border-b border-border">
+      {breadcrumbs}
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -34,31 +35,7 @@ export function Header() {
 
         <div className="w-px h-6 mx-2 bg-border" />
 
-        <button
-          type="button"
-          className="flex items-center gap-2.5 py-1.5 px-2 rounded-xl cursor-pointer transition-all duration-200"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--input)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-            style={{
-              background: 'linear-gradient(135deg, var(--primary), var(--accent))',
-              color: 'var(--primary-foreground)',
-              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.2)',
-            }}
-          >
-            U
-          </div>
-          <div className="hidden sm:flex flex-col items-start">
-            <span className="text-sm font-medium text-text-main">User</span>
-            <span className="text-xs text-text-muted">user@hookly.io</span>
-          </div>
-        </button>
+        <UserButton/>
       </div>
     </header>
   );

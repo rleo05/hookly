@@ -1,6 +1,7 @@
 import { auth } from '@hookly/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { SessionProvider } from '@/src/contexts/session-context';
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({
@@ -11,5 +12,9 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
     redirect('/auth/sign-in');
   }
 
-  return <div className="bg-background">{children}</div>;
+  return (
+    <SessionProvider session={session}>
+      <div className="bg-background">{children}</div>
+    </SessionProvider>
+  );
 }

@@ -35,6 +35,23 @@ export const auth = betterAuth({
         modelName: 'Verification',
     },
     hooks: {
+        before: createAuthMiddleware(async (ctx) => {
+            if (ctx.path !== "/sign-up/email") return;
+
+            const { name } = ctx.body ?? {};
+
+            const generatedAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+
+            return {
+                context: {
+                ...ctx,
+                body: {
+                    ...ctx.body,
+                    image: generatedAvatarUrl,
+                },
+                },
+            };
+        }),
         after: createAuthMiddleware(async (ctx) => {
             if (ctx.path === '/sign-in/email') {
                 const response = (ctx as unknown as { returned: Response }).returned;
@@ -46,6 +63,7 @@ export const auth = betterAuth({
             }
         }),
     },
+
 });
 
 export type Session = typeof auth.$Infer.Session.session;
