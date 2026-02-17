@@ -4,7 +4,7 @@ import { Bell } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { getBreadcrumbs } from '@/src/utils/breadcrumbs';
 import { ThemeToggle } from './theme-toggle';
-import { UserButton } from '@/src/components/user-button'
+import { UserCard } from '@/src/components/user-card'
 
 export function Header() {
   const pathname = usePathname();
@@ -35,7 +35,7 @@ export function Header() {
 
         <div className="w-px h-6 mx-2 bg-border" />
 
-        <UserButton/>
+        <UserCard/>
       </div>
     </header>
   );

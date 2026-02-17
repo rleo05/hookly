@@ -8,15 +8,13 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-hidden rounded-2xl border border-border bg-surface max-h-[calc(100vh-350px)] overflow-y-auto"
+      className="relative w-full overflow-auto rounded-2xl border border-border bg-surface max-h-[calc(100vh-350px)] bg-[linear-gradient(to_bottom,var(--muted-bg)_44px,var(--surface)_44px)]"
     >
-      <div className="overflow-x-auto">
-        <table
-          data-slot="table"
-          className={cn("w-full caption-bottom text-sm", className)}
-          {...props}
-        />
-      </div>
+      <table
+        data-slot="table"
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
     </div>
   )
 }
@@ -25,7 +23,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-muted-bg [&_tr]:border-b [&_tr]:border-border", className)}
+      className={cn("sticky top-0 z-10 bg-muted-bg [&_tr]:border-b [&_tr]:border-border", className)}
       {...props}
     />
   )

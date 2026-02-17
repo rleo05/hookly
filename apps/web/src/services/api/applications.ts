@@ -54,7 +54,7 @@ export async function createApplication(data: CreateApplication): Promise<{ erro
       message = errorBody.message ?? message;
     } catch {}
 
-    if (res.status === 409) {
+    if (res.status === 409 || res.status === 400) {
       return { error: message };
     }
 

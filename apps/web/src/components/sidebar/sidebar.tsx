@@ -36,6 +36,8 @@ export function Sidebar(props: SidebarProps) {
           type="button"
           className="p-2 rounded-xl cursor-pointer transition-all duration-200 text-text-muted"
           onClick={toggleSideBar}
+          aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
+          title={isOpen ? 'Close sidebar' : 'Open sidebar'}
         >
           <PanelLeft size={20} />
         </button>

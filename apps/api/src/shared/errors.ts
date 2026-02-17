@@ -17,7 +17,7 @@ export const globalErrorHandler = (error: FastifyError, _: FastifyRequest, reply
   if (error.validation) {
     const validation = error.validation[0];
     return reply.status(400).send({
-      message: `${error.validationContext}${validation.instancePath}: ${validation.message}`,
+      message: validation.message,
       statusCode: 400,
     });
   }

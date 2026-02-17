@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type CreateApplication, createApplicationSchema } from '@hookly/api-types';
-import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -82,7 +81,9 @@ export function CreateApplicationModal({ children }: { children?: React.ReactNod
             id="name"
             label="Name"
             placeholder="My app"
-            {...register('name')}
+            {...register('name', {
+              setValueAs: (v) => v.trim(),
+            })}
             disabled={isSubmitting}
             autoFocus
             autoComplete="off"
@@ -92,7 +93,9 @@ export function CreateApplicationModal({ children }: { children?: React.ReactNod
             id="externalId"
             label="External Id"
             placeholder="optional-external-id"
-            {...register('externalId')}
+            {...register('externalId', {
+              setValueAs: (v) => (v.trim() === '' ? undefined : v.trim()),
+            })}
             disabled={isSubmitting}
             autoComplete="off"
             error={errors.externalId?.message}

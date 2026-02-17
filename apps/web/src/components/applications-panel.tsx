@@ -2,12 +2,12 @@
 
 import type { ApplicationList } from '@hookly/api-types';
 import {
-  ChevronLeft,
-  ChevronRight,
   EllipsisVertical,
   Plus,
   Search,
   SquareArrowOutUpRight,
+  Pencil,
+  Trash,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -20,9 +20,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { formatDate } from '@/src/utils/dates';
 import { Input } from '../components/form/input';
+import { PaginationControls } from './pagination-controls';
 import { CreateApplicationModal } from './create-application-modal';
+import { ConfirmModal } from './confirm-modal';
+import { useState, useRef } from 'react';
 
 interface ApplicationsPanelProps {
   applications: ApplicationList;
@@ -35,6 +44,15 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  if (!search && inputRef.current) {
+    inputRef.current.value = '';
+  }
+
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedUid, setSelectedUid] = useState<string | null>(null);
+
   const handleSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -45,7 +63,7 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
     }
 
     router.replace(`?${params.toString()}`);
-  }, 400);
+  }, 100);
 
   const { page, totalPages, size } = pagination;
 
@@ -62,11 +80,16 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
     router.replace(`?${params.toString()}`);
   };
 
+  const handleDelete = (uid: string) => {
+    
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mt-6">
         <Input
           id="search"
+          ref={inputRef}
           placeholder="Search by uid, external id or name"
           className="p-2 min-w-84 px-4 pl-11 rounded-lg bg-muted-bg border border-border focus:outline-none"
           icon={Search}
@@ -75,31 +98,6 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
         />
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-text-muted">Rows per page:</span>
-            <div className="relative">
-              <select
-                value={size}
-                onChange={(e) => handleSizeChange(e.target.value)}
-                className="appearance-none bg-muted-bg border border-border text-text-main text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-primary cursor-pointer"
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
           <CreateApplicationModal>
             <button className="bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
               Create Application
@@ -142,10 +140,30 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
                           className="text-text-muted hover:text-primary transition-colors cursor-pointer"
                         />
                       </Link>
-                      <EllipsisVertical
-                        size={18}
-                        className="text-text-muted hover:text-primary transition-colors cursor-pointer"
-                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="outline-none">
+                          <EllipsisVertical
+                            size={18}
+                            className="text-text-muted hover:text-primary transition-colors cursor-pointer"
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Pencil className="mr-2 h-4 w-4" />
+                            <span>Edit</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                            onSelect={() => {
+                              setSelectedUid(application.uid);
+                              setConfirmModalOpen(true);
+                            }}
+                          >
+                            <Trash className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -153,36 +171,36 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
             </TableBody>
           </Table>
 
-          <div className="grid grid-cols-3 items-center mt-6">
-            <div />
-            <div className="flex justify-center">
-              <span className="text-sm text-text-muted">
-                Total: {pagination.total} applications
-              </span>
-            </div>
-            <div className="flex items-center justify-end gap-4">
-              <span className="text-sm text-text-muted">
-                Page {page} of {totalPages}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1}
-                  className="p-2 rounded-lg border border-border text-text-main disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted-bg transition-colors cursor-pointer"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= totalPages}
-                  className="p-2 rounded-lg border border-border text-text-main disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted-bg transition-colors cursor-pointer"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
+          <PaginationControls
+            currentPage={page}
+            totalPages={totalPages}
+            pageSize={size}
+            totalItems={pagination.total}
+            onPageChange={handlePageChange}
+            onSizeChange={(value) => handleSizeChange(value)}
+          />
         </div>
+      )}
+      {isConfirmModalOpen && (
+        <ConfirmModal
+          open={isConfirmModalOpen}
+          onClose={() => { setConfirmModalOpen(false) }}
+          title="Delete Application"
+          description={
+            <div className="flex flex-col gap-2">
+              <p>Are you sure you want to delete <strong>{selectedUid}</strong>? </p>
+              <p>This action is irreversible.</p>
+            </div>
+          }
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={() => {
+            if (selectedUid) {
+              console.log(selectedUid);
+            }
+          }}
+        >
+        </ConfirmModal>
       )}
     </div>
   );

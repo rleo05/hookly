@@ -30,7 +30,7 @@ function formatTitle(slug: string) {
     .join(' ');
 }
 
-export function getHeaderContent(pathname: string) {
+export function getBreadcrumbs(pathname: string) {
   const staticRoutes: Record<string, React.ReactNode> = {
     '/dashboard': (
       <BreadcrumbContainer>

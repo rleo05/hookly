@@ -38,7 +38,7 @@ export function Input({
           id={id}
           name={id}
           type={type}
-          className={`${rest.className ? '' : 'w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pr-4 outline-none transition-all duration-200 placeholder:text-text-muted/90'} ${Icon ? 'pl-11' : 'pl-2'}`}
+          className={`${rest.className ? '' : 'w-full bg-input border text-text-main text-sm rounded-xl h-12 pr-4 outline-none transition-all duration-200 placeholder:text-text-muted/90'} ${Icon ? 'pl-11' : 'pl-2'} ${error ? 'border-solid border-red-500' : 'border-transparent focus:border-primary'}`}
           placeholder={placeholder}
           autoComplete={autoComplete}
           required={required}
