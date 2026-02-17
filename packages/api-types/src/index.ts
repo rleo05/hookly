@@ -3,6 +3,8 @@ export {
     type PaginationResult,
     paginationSchema,
     type Pagination,
+    appQuerySchema,
+    type AppQuery,
 } from './pagination.js';
 
 export {

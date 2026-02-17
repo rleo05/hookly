@@ -76,7 +76,6 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-[28px] font-extrabold tracking-tight text-text-main">Dashboard</h1>
-        <p className="text-text-muted text-sm mt-1">Overview of your webhook infrastructure.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

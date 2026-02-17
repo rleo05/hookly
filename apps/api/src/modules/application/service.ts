@@ -30,6 +30,7 @@ export async function create(
         externalId: true,
         name: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
     return { ...app, externalId: app.externalId ?? undefined };
@@ -41,11 +42,28 @@ export async function create(
   }
 }
 
-export async function list(userId: string, pagination: Pagination): Promise<ApplicationList> {
-  const wherePagination = {
+type ListApplicationParams = Pagination & {
+  search?: string | undefined;
+};
+
+export async function list(userId: string, params: ListApplicationParams): Promise<ApplicationList> {
+  const { search, ...pagination } = params;
+
+  const wherePagination: Prisma.ApplicationWhereInput = {
     userId,
     deletedAt: null,
   };
+
+  if (search) {
+    wherePagination.AND = {
+      OR: [
+        { uid: { contains: search, mode: 'insensitive' } },
+        { externalId: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+  }
+
   const [apps, total] = await prisma.$transaction([
     prisma.application.findMany({
       where: wherePagination,
@@ -56,6 +74,7 @@ export async function list(userId: string, pagination: Pagination): Promise<Appl
         externalId: true,
         name: true,
         createdAt: true,
+        updatedAt: true,
       },
       orderBy: {
         createdAt: 'desc',

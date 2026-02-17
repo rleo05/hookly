@@ -14,3 +14,9 @@ export const paginationSchema = z.object({
 });
 
 export type Pagination = z.infer<typeof paginationSchema>;
+
+export const appQuerySchema = paginationSchema.extend({
+    search: z.string().optional(),
+});
+
+export type AppQuery = z.infer<typeof appQuerySchema>;

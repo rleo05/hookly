@@ -1,11 +1,17 @@
 'use client';
 
 import { Bell } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { getHeaderContent } from '@/src/utils/breadcrumbs';
 import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
+  const pathname = usePathname();
+  const headerContent = getHeaderContent(pathname);
+
   return (
-    <header className="flex items-center justify-end py-2">
+    <header className="flex items-center justify-between py-2 border-b border-border">
+      {headerContent}
       <div className="flex items-center gap-1">
         <button
           type="button"

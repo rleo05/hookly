@@ -14,7 +14,7 @@ export {
 
 export class ApplicationExternalIdConflict extends ApiError {
   constructor() {
-    super(409, 'application external id already in use');
+    super(409, 'external id already in use');
     this.name = 'ApplicationExternalIdConflict';
   }
 }

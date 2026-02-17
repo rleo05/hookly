@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { type Pagination, paginationSchema } from '../../shared/schema.js';
+import { type AppQuery, appQuerySchema } from '../../shared/schema.js';
 import {
   type ApplicationParamUid,
   applicationParamUidSchema,
@@ -26,11 +26,11 @@ export default function applicationAppRoutes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get<{ Querystring: Pagination }>(
+  fastify.get<{ Querystring: AppQuery }>(
     '/',
     {
       schema: {
-        querystring: paginationSchema,
+        querystring: appQuerySchema,
       },
     },
     async (request, reply) => {

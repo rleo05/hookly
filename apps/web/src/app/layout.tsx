@@ -2,10 +2,9 @@ import type { Metadata } from 'next';
 import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { cookies } from 'next/headers';
+import { Toaster } from 'sonner';
 import { ThemeProvider } from '../components/theme-provider';
 import { SidebarProvider } from '../contexts/sidebar-context';
-
-import { Toaster } from 'sonner';
 
 const fontSans = Space_Grotesk({
   variable: '--font-sans',

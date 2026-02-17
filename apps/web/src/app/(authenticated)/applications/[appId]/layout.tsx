@@ -20,23 +20,17 @@ export default async function ApplicationLayout({
     },
   });
 
-  if (!res.ok) {
-    //sonner
-  }
-
-  if (res.status !== 200) {
+  if (!res.ok || res.status !== 200) {
     redirect('/applications');
   }
 
-  const application = await res.json();
-
   return (
-    <div className="flex h-screen p-2 gap-2">
+    <div className="flex h-screen p-3 gap-2">
       <Sidebar variant="application" appId={appId} />
-      <main className="flex-1 overflow-auto px-8 bg-surface border border-border rounded-2xl">
+      <div className="flex-1 flex flex-col bg-surface h-full border border-border rounded-2xl">
         <Header />
-        {children}
-      </main>
+        <main className="overflow-auto py-4 px-8">{children}</main>
+      </div>
     </div>
   );
 }

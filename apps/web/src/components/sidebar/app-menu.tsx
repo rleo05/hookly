@@ -23,12 +23,12 @@ export function AppMenu({ appId, isOpen }: { appId: string; isOpen: boolean }) {
         />
       </ul>
 
-      <div className={`${isOpen ? 'px-5 mb-4' : 'px-2 mb-2'}`}>
+      <div className={`${isOpen ? 'px-3 mb-8' : 'px-2 mb-6'}`}>
         <div
           className={`flex items-center ${isOpen ? 'gap-2.5' : 'w-10 h-10 justify-center rounded-xl'}`}
           title={appId}
         >
-          <div className="p-1.5 rounded-lg bg-input text-primary">
+          <div className="px-3 py-1.5 rounded-lg bg-input text-primary">
             <Building2 size={18} />
           </div>
           {isOpen && <span className="font-semibold text-sm text-text-main truncate">{appId}</span>}

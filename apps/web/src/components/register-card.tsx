@@ -79,7 +79,16 @@ export default function RegisterCard() {
           </div>
 
           <form className="space-y-4" onSubmit={(e) => handleRegister(e)}>
-            <Input id="name" label="Name" type="text" placeholder="John Doe" icon={User} required minLength={3} maxLength={100} />
+            <Input
+              id="name"
+              label="Name"
+              type="text"
+              placeholder="John Doe"
+              icon={User}
+              required
+              minLength={3}
+              maxLength={100}
+            />
             <Input
               id="email"
               label="Email"
@@ -90,7 +99,14 @@ export default function RegisterCard() {
               required
               maxLength={255}
             />
-            <PasswordInput id="password" label="Password" placeholder="••••••••" icon={Lock} minLength={8} maxLength={128} />
+            <PasswordInput
+              id="password"
+              label="Password"
+              placeholder="••••••••"
+              icon={Lock}
+              minLength={8}
+              maxLength={128}
+            />
 
             <button
               type="submit"

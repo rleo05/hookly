@@ -1,4 +1,6 @@
 export {
+  type AppQuery,
+  appQuerySchema,
   type Pagination,
   type PaginationResult,
   paginationResultSchema,

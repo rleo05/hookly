@@ -4,6 +4,7 @@ interface InputProps extends React.ComponentProps<'input'> {
   id: string;
   label?: string;
   icon?: LucideIcon;
+  error?: string;
   trailing?: React.ReactNode;
 }
 
@@ -16,6 +17,7 @@ export function Input({
   trailing,
   autoComplete,
   required,
+  error,
   ...rest
 }: InputProps) {
   return (
@@ -36,12 +38,13 @@ export function Input({
           id={id}
           name={id}
           type={type}
-          className="w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pl-11 pr-4 outline-none transition-all duration-200 placeholder:text-text-muted/90"
+          className={`${rest.className ? '' : 'w-full bg-input border border-transparent focus:border-primary text-text-main text-sm rounded-xl h-12 pr-4 outline-none transition-all duration-200 placeholder:text-text-muted/90'} ${Icon ? 'pl-11' : 'pl-2'}`}
           placeholder={placeholder}
           autoComplete={autoComplete}
           required={required}
           {...rest}
         />
+        {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
     </div>
   );

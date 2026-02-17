@@ -12,6 +12,8 @@ export class ApiError extends Error {
 }
 
 export const globalErrorHandler = (error: FastifyError, _: FastifyRequest, reply: FastifyReply) => {
+  console.error(error);
+
   if (error.validation) {
     const validation = error.validation[0];
     return reply.status(400).send({

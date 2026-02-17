@@ -27,7 +27,7 @@ export function SidebarLink({ href, label, icon: Icon, isOpen }: SidebarLinkProp
         {isOpen && label}
 
         {!isOpen && (
-          <div className="absolute left-full ml-3 rounded-md px-2.5 py-1 bg-text-main text-surface text-xs font-medium shadow-lg invisible opacity-0 group-hover:translate-x-1 transition-all group-hover:visible group-hover:opacity-100 whitespace-nowrap tooltip-arrow">
+          <div className="absolute left-full ml-3 rounded-md px-2.5 py-1 bg-text-main text-surface text-xs font-medium shadow-lg invisible opacity-0 group-hover:translate-x-1 transition-all group-hover:visible group-hover:opacity-100 whitespace-nowrap tooltip-arrow z-100">
             {label}
           </div>
         )}
