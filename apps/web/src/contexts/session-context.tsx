@@ -17,17 +17,12 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({
   children,
-  session
+  session,
 }: {
   children: React.ReactNode;
-  session: SessionContextType
+  session: SessionContextType;
 }) {
-
-  return (
-    <SessionContext.Provider value={session}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={session}>{children}</SessionContext.Provider>;
 }
 
 export function useSession() {

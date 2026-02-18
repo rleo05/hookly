@@ -139,7 +139,7 @@ export async function update(userId: string, uid: string, { name, externalId }: 
       },
       data: {
         ...(name && { name }),
-        ...(externalId && { externalId }),
+        ...(externalId !== undefined && { externalId }),
       },
       select: {
         uid: true,

@@ -1,6 +1,6 @@
 'use server';
 
-import type { ApplicationList, CreateApplication } from '@hookly/api-types';
+import type { ApplicationList, CreateApplication, UpdateApplication } from '@hookly/api-types';
 import { headers } from 'next/headers';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -75,6 +75,61 @@ export async function getApplication(appId: string) {
 
   if (!res.ok) {
     throw new Error(`Failed to get application: ${res.statusText}`);
+  }
+
+  return res.json();
+}
+
+export async function deleteApplication(appId: string): Promise<{ error?: string }> {
+  const headersList = await headers();
+  const res = await fetch(`${BASE_URL}/app/application/${appId}`, {
+    method: 'DELETE',
+    headers: {
+      Cookie: headersList.get('cookie') || '',
+    },
+  });
+
+  if (!res.ok) {
+    let message = 'Unexpected error';
+
+    try {
+      const errorBody = await res.json();
+      message = errorBody.message ?? message;
+    } catch {}
+
+    return { error: message };
+  }
+
+  return {};
+}
+
+export async function updateApplication(
+  appId: string,
+  data: UpdateApplication,
+): Promise<{ error?: string }> {
+  const headersList = await headers();
+  const res = await fetch(`${BASE_URL}/app/application/${appId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: headersList.get('cookie') || '',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    let message = 'Unexpected error';
+
+    try {
+      const errorBody = await res.json();
+      message = errorBody.message ?? message;
+    } catch {}
+
+    if (res.status === 409 || res.status === 400) {
+      return { error: message };
+    }
+
+    throw new Error(message);
   }
 
   return res.json();

@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { ApplicationsPanel } from '@/src/components/applications-panel';
-import { getApplications } from '@/src/services/api/applications';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import { ApplicationsPanel } from '@/src/components/applications/applications-panel';
+import { getApplications } from '@/src/services/api/applications';
 
 const searchParamsSchema = z.object({
   search: z.string().optional(),
@@ -25,19 +25,19 @@ export default async function ApplicationsPage({
 
   const params = new URLSearchParams(
     Object.entries(resolvedParams)
-      .filter(([,value]) => typeof value === "string")
-      .map(([key, value]) => [key, value as string])
+      .filter(([, value]) => typeof value === 'string')
+      .map(([key, value]) => [key, value as string]),
   );
 
   let shouldRedirect = false;
 
   if (page && page !== safePage) {
-    params.set("page", String(safePage));
+    params.set('page', String(safePage));
     shouldRedirect = true;
   }
 
   if (size && size !== safeSize) {
-    params.set("size", String(safeSize));
+    params.set('size', String(safeSize));
     shouldRedirect = true;
   }
 

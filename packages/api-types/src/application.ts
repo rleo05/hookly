@@ -35,7 +35,7 @@ export type ApplicationParamUid = z.infer<typeof applicationParamUidSchema>;
 
 export const updateApplicationSchema = z.object({
     name: z.string().min(3).max(100).optional(),
-    externalId: z.string().min(1).optional(),
+    externalId: z.string().min(1).nullable().optional(),
 });
 
 export type UpdateApplication = z.infer<typeof updateApplicationSchema>;

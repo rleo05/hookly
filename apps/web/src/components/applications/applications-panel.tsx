@@ -1,17 +1,18 @@
 'use client';
 
-import type { ApplicationList } from '@hookly/api-types';
-import {
-  EllipsisVertical,
-  Plus,
-  Search,
-  SquareArrowOutUpRight,
-  Pencil,
-  Trash,
-} from 'lucide-react';
+import type { ApplicationItem, ApplicationList } from '@hookly/api-types';
+import { EllipsisVertical, Pencil, Plus, Search, SquareArrowOutUpRight, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -20,18 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { formatDate } from '@/src/utils/dates';
-import { Input } from '../components/form/input';
-import { PaginationControls } from './pagination-controls';
+import { deleteApplication } from '../../services/api/applications';
+import { ConfirmModal } from '../confirm-modal';
+import { Input } from '../form/input';
+import { PaginationControls } from '../pagination-controls';
 import { CreateApplicationModal } from './create-application-modal';
-import { ConfirmModal } from './confirm-modal';
-import { useState, useRef } from 'react';
+import { EditApplicationModal } from './edit-application-modal';
 
 interface ApplicationsPanelProps {
   applications: ApplicationList;
@@ -52,6 +48,7 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedUid, setSelectedUid] = useState<string | null>(null);
+  const [editingApp, setEditingApp] = useState<ApplicationItem | null>(null);
 
   const handleSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -80,8 +77,19 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
     router.replace(`?${params.toString()}`);
   };
 
-  const handleDelete = (uid: string) => {
-    
+  const handleDelete = async () => {
+    if (!selectedUid) return;
+
+    const result = await deleteApplication(selectedUid);
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success('Application deleted successfully');
+    setConfirmModalOpen(false);
+    router.refresh();
   };
 
   return (
@@ -117,8 +125,8 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
             <TableHeader>
               <TableRow>
                 <TableHead>Uid</TableHead>
-                <TableHead>External Id</TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>External Id</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Updated At</TableHead>
                 <TableHead>Actions</TableHead>
@@ -128,8 +136,8 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
               {applications?.applications.map((application) => (
                 <TableRow key={application.uid}>
                   <TableCell>{application.uid}</TableCell>
-                  <TableCell>{application.externalId}</TableCell>
                   <TableCell>{application.name}</TableCell>
+                  <TableCell>{application.externalId}</TableCell>
                   <TableCell>{formatDate(new Date(application.createdAt))}</TableCell>
                   <TableCell>{formatDate(new Date(application.updatedAt))}</TableCell>
                   <TableCell>
@@ -148,12 +156,15 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
                           />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="cursor-pointer">
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onSelect={() => setEditingApp(application)}
+                          >
                             <Pencil className="mr-2 h-4 w-4" />
                             <span>Edit</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                            className="text-red-600 focus:text-red-600 cursor-pointer"
                             onSelect={() => {
                               setSelectedUid(application.uid);
                               setConfirmModalOpen(true);
@@ -184,23 +195,30 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
       {isConfirmModalOpen && (
         <ConfirmModal
           open={isConfirmModalOpen}
-          onClose={() => { setConfirmModalOpen(false) }}
+          onClose={() => {
+            setConfirmModalOpen(false);
+          }}
           title="Delete Application"
           description={
             <div className="flex flex-col gap-2">
-              <p>Are you sure you want to delete <strong>{selectedUid}</strong>? </p>
+              <p>
+                Are you sure you want to delete <strong>{selectedUid}</strong>?{' '}
+              </p>
               <p>This action is irreversible.</p>
             </div>
           }
           confirmText="Delete"
           cancelText="Cancel"
-          onConfirm={() => {
-            if (selectedUid) {
-              console.log(selectedUid);
-            }
-          }}
-        >
-        </ConfirmModal>
+          onConfirm={handleDelete}
+        ></ConfirmModal>
+      )}
+
+      {editingApp && (
+        <EditApplicationModal
+          application={editingApp}
+          open={!!editingApp}
+          onOpenChange={(open) => !open && setEditingApp(null)}
+        />
       )}
     </div>
   );

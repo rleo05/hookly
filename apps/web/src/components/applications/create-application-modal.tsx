@@ -16,8 +16,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { createApplication } from '../services/api/applications';
-import { Input } from './form/input';
+import { Input } from '@/src/components/form/input';
+import { createApplication } from '@/src/services/api/applications';
 
 export function CreateApplicationModal({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
