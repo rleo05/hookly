@@ -3,7 +3,7 @@ import type { PaginationResult } from './pagination.js';
 
 export const createApplicationSchema = z.object({
     name: z.string().min(3, 'Name must be at least 3 characters long').trim().max(100, 'Name must be at most 100 characters long'),
-    externalId: z.string().min(1, 'External ID must be at least 1 character long').trim().optional(),
+    externalId: z.string().min(1, 'External ID must be at least 1 character long').trim().max(60, 'External ID must be at most 60 characters long').optional(),
 });
 
 export type CreateApplication = z.infer<typeof createApplicationSchema>;
@@ -34,8 +34,8 @@ export const applicationParamUidSchema = z.object({
 export type ApplicationParamUid = z.infer<typeof applicationParamUidSchema>;
 
 export const updateApplicationSchema = z.object({
-    name: z.string().min(3).max(100).optional(),
-    externalId: z.string().min(1).nullable().optional(),
+    name: z.string().min(3, 'Name must be at least 3 characters long').trim().max(100, 'Name must be at most 100 characters long').optional(),
+    externalId: z.string().min(1, 'External ID must be at least 1 character long').trim().max(60, 'External ID must be at most 60 characters long').nullable().optional(),
 });
 
 export type UpdateApplication = z.infer<typeof updateApplicationSchema>;

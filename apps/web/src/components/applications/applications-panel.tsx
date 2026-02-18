@@ -136,8 +136,12 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
               {applications?.applications.map((application) => (
                 <TableRow key={application.uid}>
                   <TableCell>{application.uid}</TableCell>
-                  <TableCell>{application.name}</TableCell>
-                  <TableCell>{application.externalId}</TableCell>
+                  <TableCell title={application.name.length >= 26 ? application.name : undefined} className='max-w-[25ch] truncate'>{application.name}</TableCell>
+                  <TableCell title={
+                    (application.externalId?.length ?? 0) >= 26
+                      ? application.externalId
+                      : undefined
+                  } className='max-w-[25ch] truncate'>{application.externalId}</TableCell>
                   <TableCell>{formatDate(new Date(application.createdAt))}</TableCell>
                   <TableCell>{formatDate(new Date(application.updatedAt))}</TableCell>
                   <TableCell>
@@ -200,7 +204,7 @@ export function ApplicationsPanel({ applications, search }: ApplicationsPanelPro
           }}
           title="Delete Application"
           description={
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mb-12">
               <p>
                 Are you sure you want to delete <strong>{selectedUid}</strong>?{' '}
               </p>

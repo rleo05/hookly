@@ -6,7 +6,8 @@
     "start": "turbo run start",
     "lint": "turbo run lint",
     "fix": "turbo run lint:fix",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "dev:stack": "turbo run dev --filter=web --filter=api"
   },
   "workspaces": [
     "apps/*",
