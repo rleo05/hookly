@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { Prisma, prisma } from '@hookly/database';
 import { env } from '@hookly/env';
-import type { Pagination } from '../../shared/schema.js';
+import type { AppQuery } from '../../shared/schema.js';
 import {
   ApiKeyLimitError,
   type ApiKeyListResponse,
@@ -55,10 +55,26 @@ export async function create({ name, userId }: CreateApiKeyParams): Promise<ApiK
   throw new Error('failed to create api key');
 }
 
-export async function list(userId: string, pagination: Pagination): Promise<ApiKeyListResponse> {
+export async function list(userId: string, query: AppQuery): Promise<ApiKeyListResponse> {
+  const { search, ...pagination } = query;
+
+  const where: { userId: string; revokedAt: null; AND?: object } = {
+    userId,
+    revokedAt: null,
+  };
+
+  if (search) {
+    where.AND = {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { keyId: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+  }
+
   const [keys, total] = await prisma.$transaction([
     prisma.apiKey.findMany({
-      where: { userId, revokedAt: null },
+      where,
       select: {
         id: true,
         keyId: true,
@@ -69,9 +85,7 @@ export async function list(userId: string, pagination: Pagination): Promise<ApiK
       skip: (pagination.page - 1) * pagination.size,
       take: pagination.size,
     }),
-    prisma.apiKey.count({
-      where: { userId, revokedAt: null },
-    }),
+    prisma.apiKey.count({ where }),
   ]);
 
   const paginationResult = {

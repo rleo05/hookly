@@ -13,9 +13,7 @@ export function Loader({ text, size = 32, className = '', fullScreen = true }: L
   if (fullScreen) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
-        {text && 
-          <p className="text-text-main text-xl">{text}</p>
-        }
+        {text && <p className="text-text-main text-xl">{text}</p>}
         {spinner}
       </div>
     );

@@ -43,6 +43,7 @@ export function EditApplicationModal({
     formState: { errors, isSubmitting },
   } = useForm<UpdateApplication>({
     resolver: zodResolver(updateApplicationSchema),
+    mode: 'onBlur',
     defaultValues: {
       name: '',
       externalId: '',

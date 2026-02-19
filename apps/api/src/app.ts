@@ -9,6 +9,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
+import apiKeyAppRoutes from './modules/api-key/app-routes.js';
 import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationAppRoutes from './modules/application/app-routes.js';
 import applicationRoutes from './modules/application/routes.js';
@@ -52,6 +53,7 @@ fastify.register(applicationRoutes, { prefix: '/application' });
 fastify.register(endpointRoutes, { prefix: '/endpoint' });
 fastify.register(eventRoutes);
 
+fastify.register(apiKeyAppRoutes, { prefix: '/app/api-key' });
 fastify.register(applicationAppRoutes, { prefix: '/app/application' });
 fastify.register(endpointAppRoutes, { prefix: '/app/endpoint' });
 fastify.register(eventAppRoutes, { prefix: '/app' });

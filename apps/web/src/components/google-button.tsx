@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { authClient } from '@/src/lib/auth-client';
 
 export function GoogleButton({
@@ -10,10 +11,14 @@ export function GoogleButton({
   callbackURL?: string;
 }) {
   const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-      provider: 'google',
-      callbackURL: `${window.location.origin}${callbackURL}`,
-    });
+    try {
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: `${window.location.origin}${callbackURL}`,
+      });
+    } catch (error) {
+      toast.error('Failed to connect with Google');
+    }
   };
 
   return (

@@ -1,24 +1,22 @@
 'use server';
 
-import type { ApplicationList, CreateApplication, UpdateApplication } from '@hookly/api-types';
+import type { ApplicationItem, ApplicationList, CreateApplication, UpdateApplication } from '@hookly/api-types';
 import { headers } from 'next/headers';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function getApplications(query?: {
+export async function getApplications(query: {
   search?: string;
-  page?: number;
-  size?: number;
-}): Promise<ApplicationList> {
+  page: number;
+  size: number;
+}): Promise<{ data: ApplicationItem[]; pagination: ApplicationList['pagination'] }> {
   const url = new URL(`${BASE_URL}/app/application`);
 
-  if (query) {
-    Object.entries(query).forEach(([key, value]) => {
-      if (value !== undefined) {
-        url.searchParams.append(key, String(value));
-      }
-    });
-  }
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined) {
+      url.searchParams.append(key, String(value));
+    }
+  });
 
   const headersList = await headers();
   const res = await fetch(url.toString(), {
@@ -32,7 +30,8 @@ export async function getApplications(query?: {
     throw new Error(`Failed to fetch applications: ${res.statusText}`);
   }
 
-  return res.json();
+  const body: ApplicationList = await res.json();
+  return { data: body.applications, pagination: body.pagination };
 }
 
 export async function createApplication(data: CreateApplication): Promise<{ error?: string }> {
@@ -52,7 +51,7 @@ export async function createApplication(data: CreateApplication): Promise<{ erro
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch {}
+    } catch { }
 
     if (res.status === 409 || res.status === 400) {
       return { error: message };
@@ -95,7 +94,7 @@ export async function deleteApplication(appId: string): Promise<{ error?: string
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch {}
+    } catch { }
 
     return { error: message };
   }
@@ -123,7 +122,7 @@ export async function updateApplication(
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch {}
+    } catch { }
 
     if (res.status === 409 || res.status === 400) {
       return { error: message };

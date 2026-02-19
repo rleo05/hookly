@@ -3,11 +3,11 @@ import { Sidebar } from '../../../components/sidebar/sidebar';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen p-3 gap-2">
+    <div className="flex h-screen overflow-hidden p-3 gap-2">
       <Sidebar variant="main" />
-      <div className="flex-1 flex flex-col bg-surface h-full border border-border rounded-2xl">
+      <div className="flex-1 min-w-0 flex flex-col bg-surface h-full border border-border rounded-2xl">
         <Header />
-        <main className="overflow-auto py-4 px-8">{children}</main>
+        <main className="flex-1 min-h-0 overflow-auto py-4 px-6 md:px-8">{children}</main>
       </div>
     </div>
   );

@@ -46,7 +46,10 @@ type ListApplicationParams = Pagination & {
   search?: string | undefined;
 };
 
-export async function list(userId: string, params: ListApplicationParams): Promise<ApplicationList> {
+export async function list(
+  userId: string,
+  params: ListApplicationParams,
+): Promise<ApplicationList> {
   const { search, ...pagination } = params;
 
   const wherePagination: Prisma.ApplicationWhereInput = {

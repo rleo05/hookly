@@ -22,19 +22,23 @@ export default function RegisterCard() {
 
     if (!name || !email || !password) return;
 
-    const result = await authClient.signUp.email({
-      email,
-      password,
-      name,
-    });
+    try {
+      const result = await authClient.signUp.email({
+        email,
+        password,
+        name,
+      });
 
-    if (result.error) {
-      toast.error(result.error.message ?? 'Failed to create account.');
-      return;
+      if (result.error) {
+        toast.error(result.error.message ?? 'Failed to create account.');
+        return;
+      }
+
+      toast.success('Account created successfully!');
+      router.push('/dashboard');
+    } catch (error) {
+      toast.error('Failed to create account.');
     }
-
-    toast.success('Account created successfully!');
-    router.push('/dashboard');
   };
 
   return (

@@ -21,18 +21,22 @@ export default function LoginCard() {
 
     if (!email || !password) return;
 
-    const result = await authClient.signIn.email({
-      email,
-      password,
-      callbackURL: `${window.location.origin}/dashboard`,
-    });
+    try {
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: `${window.location.origin}/dashboard`,
+      });
 
-    if (result.error) {
-      toast.error(result.error.message ?? 'Failed to sign in.');
-      return;
+      if (result.error) {
+        toast.error(result.error.message ?? 'Failed to sign in.');
+        return;
+      }
+
+      toast.success('Signed in successfully!');
+    } catch (error) {
+      toast.error('Failed to sign in.');
     }
-
-    toast.success('Signed in successfully!');
   };
 
   return (

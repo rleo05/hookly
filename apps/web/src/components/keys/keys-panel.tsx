@@ -1,8 +1,7 @@
 'use client';
 
-import type { ApplicationItem, PaginationResult } from '@hookly/api-types';
-import { EllipsisVertical, Pencil, Plus, Search, SquareArrowOutUpRight, Trash } from 'lucide-react';
-import Link from 'next/link';
+import type { ApiKeyListItem, PaginationResult } from '@hookly/api-types';
+import { EllipsisVertical, Plus, Search, ShieldOff } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -22,20 +21,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/src/utils/dates';
-import { deleteApplication } from '../../services/api/applications';
+import { revokeApiKey } from '../../services/api/keys';
 import { ConfirmModal } from '../confirm-modal';
 import { Input } from '../form/input';
 import { PaginationControls } from '../pagination-controls';
-import { CreateApplicationModal } from './create-application-modal';
-import { EditApplicationModal } from './edit-application-modal';
+import { CreateKeyModal } from './create-key-modal';
 
-interface ApplicationsPanelProps {
-  applications: ApplicationItem[];
+interface KeysPanelProps {
+  keys: ApiKeyListItem[];
   pagination: PaginationResult;
   search?: string;
 }
 
-export function ApplicationsPanel({ applications: applicationList, pagination, search }: ApplicationsPanelProps) {
+export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,8 +45,7 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
   }
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [selectedUid, setSelectedUid] = useState<string | null>(null);
-  const [editingApp, setEditingApp] = useState<ApplicationItem | null>(null);
+  const [selectedKey, setSelectedKey] = useState<ApiKeyListItem | null>(null);
 
   const handleSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -77,17 +74,17 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
     router.replace(`?${params.toString()}`);
   };
 
-  const handleDelete = async () => {
-    if (!selectedUid) return;
+  const handleRevoke = async () => {
+    if (!selectedKey) return;
 
-    const result = await deleteApplication(selectedUid);
+    const result = await revokeApiKey(selectedKey.id);
 
     if (result.error) {
       toast.error(result.error);
       return;
     }
 
-    toast.success('Application deleted successfully');
+    toast.success('API key revoked successfully');
     setConfirmModalOpen(false);
     router.refresh();
   };
@@ -98,7 +95,7 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
         <Input
           id="search"
           ref={inputRef}
-          placeholder="Search by uid, external id or name"
+          placeholder="Search by name or key ID"
           className="w-full md:min-w-84 md:w-auto px-4 pl-11 py-1.5 md:py-2 rounded-lg bg-muted-bg border border-border focus:outline-none"
           icon={Search}
           defaultValue={search}
@@ -106,62 +103,45 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
         />
 
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <CreateApplicationModal>
+          <CreateKeyModal>
             <button className="w-full md:w-auto bg-primary text-primary-foreground font-semibold px-5 py-1.5 md:py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
-              Create Application
+              Create Key
               <Plus size={18} />
             </button>
-          </CreateApplicationModal>
+          </CreateKeyModal>
         </div>
       </div>
 
-      {!applicationList.length ? (
+      {!keyList.length ? (
         <div className="flex justify-center h-[300px] items-center">
-          <p className="text-lg text-text-muted">No applications found</p>
+          <p className="text-lg text-text-muted">No API keys found</p>
         </div>
       ) : (
         <div className="mt-6 min-w-0 w-full">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Uid</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>External Id</TableHead>
+                <TableHead>Key ID</TableHead>
                 <TableHead>Created At</TableHead>
-                <TableHead>Updated At</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {applicationList.map((application) => (
-                <TableRow key={application.uid}>
-                  <TableCell>{application.uid}</TableCell>
+              {keyList.map((key) => (
+                <TableRow key={key.id}>
                   <TableCell
-                    title={application.name.length >= 26 ? application.name : undefined}
+                    title={key.name.length >= 26 ? key.name : undefined}
                     className="max-w-[25ch] truncate"
                   >
-                    {application.name}
+                    <span className="flex items-center gap-2">
+                      {key.name}
+                    </span>
                   </TableCell>
-                  <TableCell
-                    title={
-                      (application.externalId?.length ?? 0) >= 26
-                        ? application.externalId
-                        : undefined
-                    }
-                    className="max-w-[25ch] truncate"
-                  >
-                    {application.externalId}
-                  </TableCell>
-                  <TableCell>{formatDate(new Date(application.createdAt))}</TableCell>
-                  <TableCell>{formatDate(new Date(application.updatedAt))}</TableCell>
+                  <TableCell className="font-mono text-sm text-text-muted">{key.keyId}</TableCell>
+                  <TableCell>{formatDate(new Date(key.createdAt))}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Link href={`/applications/${application.uid}`}>
-                        <SquareArrowOutUpRight
-                          size={18}
-                          className="text-text-muted hover:text-primary transition-colors cursor-pointer"
-                        />
-                      </Link>
                       <DropdownMenu>
                         <DropdownMenuTrigger className="outline-none">
                           <EllipsisVertical
@@ -171,21 +151,14 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            className="cursor-pointer"
-                            onSelect={() => setEditingApp(application)}
-                          >
-                            <Pencil className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
                             className="text-red-600 focus:text-red-600 cursor-pointer"
                             onSelect={() => {
-                              setSelectedUid(application.uid);
+                              setSelectedKey(key);
                               setConfirmModalOpen(true);
                             }}
                           >
-                            <Trash className="mr-2 h-4 w-4" />
-                            <span>Delete</span>
+                            <ShieldOff className="mr-2 h-4 w-4" />
+                            <span>Revoke</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -206,32 +179,25 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
           />
         </div>
       )}
+
       {isConfirmModalOpen && (
         <ConfirmModal
           open={isConfirmModalOpen}
           onClose={() => {
             setConfirmModalOpen(false);
           }}
-          title="Delete Application"
+          title="Revoke API Key"
           description={
             <div className="flex flex-col gap-2 mb-12">
               <p>
-                Are you sure you want to delete <strong>{selectedUid}</strong>?{' '}
+                Are you sure you want to revoke <strong>{selectedKey?.name}</strong>?{' '}
               </p>
-              <p>This action is irreversible.</p>
+              <p>This action is irreversible and will immediately invalidate the key.</p>
             </div>
           }
-          confirmText="Delete"
+          confirmText="Revoke"
           cancelText="Cancel"
-          onConfirm={handleDelete}
-        ></ConfirmModal>
-      )}
-
-      {editingApp && (
-        <EditApplicationModal
-          application={editingApp}
-          open={!!editingApp}
-          onOpenChange={(open) => !open && setEditingApp(null)}
+          onConfirm={handleRevoke}
         />
       )}
     </div>

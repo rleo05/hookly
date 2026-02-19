@@ -1,6 +1,6 @@
-import { ApplicationLayoutContent } from "@/src/components/applications/application-layout-content";
-import { Loader } from "@/src/components/loader";
-import { Suspense } from "react";
+import { Suspense } from 'react';
+import { ApplicationLayoutContent } from '@/src/components/applications/application-layout-content';
+import { Loader } from '@/src/components/loader';
 
 export default function ApplicationLayout({
   children,
@@ -11,9 +11,7 @@ export default function ApplicationLayout({
 }) {
   return (
     <Suspense fallback={<Loader text="Loading application..." fullScreen={true} />}>
-      <ApplicationLayoutContent params={params}>
-        {children}
-      </ApplicationLayoutContent>
+      <ApplicationLayoutContent params={params}>{children}</ApplicationLayoutContent>
     </Suspense>
   );
 }

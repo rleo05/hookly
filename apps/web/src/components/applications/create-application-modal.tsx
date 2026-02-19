@@ -31,6 +31,7 @@ export function CreateApplicationModal({ children }: { children?: React.ReactNod
     formState: { errors, isSubmitting },
   } = useForm<CreateApplication>({
     resolver: zodResolver(createApplicationSchema),
+    mode: 'onBlur',
     defaultValues: {
       name: '',
       externalId: '',
