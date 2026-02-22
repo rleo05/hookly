@@ -25,9 +25,9 @@ export async function ApplicationLayoutContent({
   }
 
   return (
-    <div className="flex h-screen p-3 gap-2">
+    <div className="flex h-screen md:p-3 gap-2">
       <Sidebar variant="application" appId={appId} />
-      <div className="flex-1 flex flex-col bg-surface h-full border border-border rounded-2xl">
+      <div className="flex-1 flex flex-col bg-surface h-full border border-border md:rounded-2xl">
         <Header />
         <main className="overflow-auto py-4 px-8">{children}</main>
       </div>

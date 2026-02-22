@@ -67,3 +67,13 @@ export {
     type ApiKeyListItem,
     type ApiKeyListResponse,
 } from './api-key.js';
+
+export {
+    dashboardQuerySchema,
+    type DashboardQuery,
+    type DashboardMetrics,
+    type DailyVolumeItem,
+    type FailureReasonItem,
+    type RecentActivityItem,
+    type DashboardResponse,
+} from './dashboard.js';

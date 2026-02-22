@@ -4,16 +4,16 @@ import { Bell } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { UserCard } from '@/src/components/user-card';
 import { getBreadcrumbs } from '@/src/utils/breadcrumbs';
-import { ThemeToggle } from './theme-toggle';
 import { ToggleSideBar } from './sidebar/toggle-sidebar';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
   const pathname = usePathname();
   const breadcrumbs = getBreadcrumbs(pathname);
 
   return (
-    <header className="flex flex-col md:flex-row md:items-center md:justify-between py-2 pr-2 border-b border-border">
-      <div className="pl-4 flex items-center justify-between md:contents">
+    <header className="flex flex-col md:flex-row md:items-center md:justify-between md:py-1 md:pr-2 md:border-b md:border-border">
+      <div className="pl-4 pr-2 py-1 flex items-center justify-between border-b border-border md:contents md:p-0 md:border-0">
         <ToggleSideBar className="md:hidden" />
 
         <div className="flex items-center gap-1 md:order-last">
@@ -42,7 +42,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="mt-1 pl-6 md:pl-8 md:mt-0">
+      <div className="py-2.5 pl-6 pr-2 md:bg-transparent md:pl-8 md:py-0 md:pr-0">
         {breadcrumbs}
       </div>
     </header>

@@ -35,8 +35,11 @@ interface ApplicationsPanelProps {
   search?: string;
 }
 
-export function ApplicationsPanel({ applications: applicationList, pagination, search }: ApplicationsPanelProps) {
-
+export function ApplicationsPanel({
+  applications: applicationList,
+  pagination,
+  search,
+}: ApplicationsPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -107,7 +110,10 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
 
         <div className="flex items-center gap-4 w-full @[570px]:w-auto">
           <CreateApplicationModal>
-            <button className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
+            <button
+              className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover"
+              type="button"
+            >
               Create Application
               <Plus size={18} />
             </button>
@@ -152,8 +158,12 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
                   >
                     {application.externalId}
                   </TableCell>
-                  <TableCell className='tabular-nums'>{formatDate(new Date(application.createdAt))}</TableCell>
-                  <TableCell className='tabular-nums'>{formatDate(new Date(application.updatedAt))}</TableCell>
+                  <TableCell className="tabular-nums">
+                    {formatDate(new Date(application.createdAt))}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {formatDate(new Date(application.updatedAt))}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2 justify-center">
                       <Link href={`/applications/${application.uid}`}>

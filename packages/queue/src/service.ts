@@ -69,7 +69,7 @@ export class RabbitService {
         if (!this.config) {
             throw new Error('rabbitmq client not initialized. Call init() first.');
         }
-        
+
         let channel: amqp.Channel | null = null;
 
         try {
@@ -120,8 +120,9 @@ export class RabbitService {
         options?: Options.Publish
     ) {
         channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
-            persistent: options?.persistent ?? true,
+            persistent: true,
             contentType: 'application/json',
+            ...options,
         });
 
         channel.waitForConfirms();

@@ -26,7 +26,7 @@ export function UserCard() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="outline-none" asChild>
-        <div className="flex items-center gap-2.5 py-1.5 px-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-input">
+        <div className="flex items-center gap-2.5 py-1.5 px-2 rounded-xl cursor-pointer transition-all duration-200 md:hover:bg-input">
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-primary text-primary-foreground">
             {user.image ? (
               <img
@@ -41,7 +41,7 @@ export function UserCard() {
                 : '')
             )}
           </div>
-          <div className="hidden sm:flex flex-col items-start">
+          <div className="hidden md:flex flex-col items-start">
             <span className="text-sm font-medium text-text-main">{user.name}</span>
             <span className="text-xs text-text-muted max-w-[18ch] truncate">{user.email}</span>
           </div>

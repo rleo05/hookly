@@ -8,6 +8,7 @@ export class NotPublicIPError extends Error {
     super(`address ${hostname} does not have a public ip`);
   }
 }
+export class DNSResolutionError extends Error {}
 
 const isPublic = (ip: string) => {
   if (!ipaddr.isValid(ip)) return false;
@@ -84,7 +85,13 @@ const client = new Agent({
 
         tryConnect(0);
       })
-      .catch((err) => callback(err as Error, null));
+      .catch((err) => {
+        if (err.code === 'ENOTFOUND') {
+          return callback(new DNSResolutionError(err.message), null);
+        }
+
+        callback(err, null);
+      });
   },
 });
 

@@ -110,6 +110,7 @@ export const processWebhookMessage = async (
               method: attempt.endpoint.method,
               headers: attempt.endpoint.headers,
               secret: attempt.endpoint.secret,
+              retryCount: 0,
             });
           } catch (error) {
             console.error(`error dispatching job ${attempt.id}:`, error);
@@ -132,6 +133,7 @@ export const processWebhookMessage = async (
           id: {
             in: successIds,
           },
+          status: 'WAITING',
         },
         data: { status: 'ENQUEUED' },
       });

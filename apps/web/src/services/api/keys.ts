@@ -1,6 +1,11 @@
 'use server';
 
-import type { ApiKeyCreate, ApiKeyListItem, ApiKeyListResponse, ApiKeyResponse } from '@hookly/api-types';
+import type {
+  ApiKeyCreate,
+  ApiKeyListItem,
+  ApiKeyListResponse,
+  ApiKeyResponse,
+} from '@hookly/api-types';
 import { headers } from 'next/headers';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -53,7 +58,7 @@ export async function createApiKey(
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch { }
+    } catch {}
 
     if (res.status === 403 || res.status === 400) {
       return { error: message };
@@ -81,7 +86,7 @@ export async function revokeApiKey(id: string): Promise<{ error?: string }> {
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch { }
+    } catch {}
 
     return { error: message };
   }

@@ -1,6 +1,7 @@
 import { auth } from '@hookly/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { QueryProvider } from '@/src/components/query-provider';
 import { SessionProvider } from '@/src/contexts/session-context';
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -14,7 +15,9 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 
   return (
     <SessionProvider session={session}>
-      <div className="bg-background">{children}</div>
+      <QueryProvider>
+        <div className="bg-background">{children}</div>
+      </QueryProvider>
     </SessionProvider>
   );
 }

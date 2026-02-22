@@ -2,11 +2,11 @@ import crypto from 'node:crypto';
 import { safeGet, safeSet } from '@hookly/cache';
 import { type Prisma, prisma } from '@hookly/database';
 import type { MessagePropertyHeaders } from '@hookly/queue';
-import { webhookDispatchConsumer, webhookDispatchProducer } from '@hookly/queue';
+import { webhookDispatchProducer } from '@hookly/queue';
 import type { WebhookDispatchPayload } from '@hookly/queue/constants';
 import pLimit from 'p-limit';
 import { request } from 'undici';
-import client, { NotPublicIPError } from './http-client';
+import client, { DNSResolutionError, NotPublicIPError } from './http-client';
 
 const MAX_RETRIES = 5;
 const TTL_BASE = 15000;
@@ -14,11 +14,9 @@ const limit = pLimit(100);
 
 export const dispatchWebhook = async (
   data: WebhookDispatchPayload,
-  queueHeaders: MessagePropertyHeaders | undefined,
+  _queueHeaders: MessagePropertyHeaders | undefined,
 ) => {
-  const retryCount = webhookDispatchConsumer.getRetryCount(queueHeaders);
-
-  console.log(data);
+  const retryCount = data.retryCount ?? 0;
 
   try {
     // add new field to store start_processing_at
@@ -27,6 +25,7 @@ export const dispatchWebhook = async (
     SET status = 'PROCESSING'
     WHERE id = ${data.attemptId} 
       AND (status = 'ENQUEUED'
+        OR status = 'WAITING'
         OR (NOW() - "created_at" > INTERVAL '15 seconds' AND status = 'PROCESSING'))
     `;
 
@@ -66,7 +65,11 @@ export const dispatchWebhook = async (
     const stringPayload = JSON.stringify(payload);
 
     const startTime = Date.now();
-    const { body,statusCode, headers: responseHeaders } = await limit(() =>
+    const {
+      body,
+      statusCode,
+      headers: responseHeaders,
+    } = await limit(() =>
       request(data.url, {
         method: data.method,
         // block dangerous headers on endpoint creation
@@ -84,7 +87,7 @@ export const dispatchWebhook = async (
     if (statusCode >= 300 && isRetryable(statusCode)) {
       await prisma.eventAttempt.update({
         data: {
-          status: 'ENQUEUED',
+          status: 'FAILED',
           responseHeader: responseHeaders,
           responseCode: statusCode,
           durationMs: Date.now() - startTime,
@@ -119,22 +122,57 @@ export const dispatchWebhook = async (
       return;
     }
 
+    if (error instanceof DNSResolutionError) {
+      await prisma.eventAttempt.update({
+        data: { status: 'FAILED', responseCode: 404 },
+        where: { id: data.attemptId },
+      });
+      return;
+    }
+
     console.error(`error dispatching webhook ${data.attemptId}:`, error);
 
     // add more agressive backoff if 429 code
     if (retryCount < MAX_RETRIES) {
       const ttl = TTL_BASE * 2 ** retryCount;
 
-      await webhookDispatchProducer
-        .insertToRetryQueue(data, 10, ttl)
-        .catch((err) => console.error('retry enqueue fail', err));
+      await prisma.eventAttempt.updateMany({
+        where: { id: data.attemptId, status: 'PROCESSING' },
+        data: { status: 'FAILED', attemptNumber: retryCount + 1 },
+      });
+
+      const currentAttempt = await prisma.eventAttempt.findUnique({
+        select: { endpointId: true },
+        where: { id: data.attemptId },
+      });
+
+      if (currentAttempt) {
+        const nextRetryCount = retryCount + 1;
+        const newAttempt = await prisma.eventAttempt.create({
+          data: {
+            eventId: data.eventId,
+            endpointId: currentAttempt.endpointId,
+            status: 'ENQUEUED',
+            idempotencyKey: `retry:${nextRetryCount}:${currentAttempt.endpointId}:${data.eventId}`,
+            attemptNumber: nextRetryCount + 1,
+          },
+        });
+
+        await webhookDispatchProducer
+          .insertToRetryQueue(
+            { ...data, attemptId: newAttempt.id, retryCount: nextRetryCount },
+            10,
+            ttl,
+          )
+          .catch((err) => console.error('retry enqueue fail', err));
+      }
       return;
     }
 
     console.warn('max retries reached, sending to DLQ');
-    await prisma.eventAttempt.update({
-      data: { status: 'FAILED' },
-      where: { id: data.attemptId },
+    await prisma.eventAttempt.updateMany({
+      where: { id: data.attemptId, status: 'PROCESSING' },
+      data: { status: 'FAILED', attemptNumber: retryCount + 1 },
     });
     throw error;
   }

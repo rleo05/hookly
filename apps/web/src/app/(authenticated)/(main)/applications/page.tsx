@@ -1,13 +1,17 @@
 import { ApplicationsPanel } from '@/src/components/applications/applications-panel';
 import { getApplications } from '@/src/services/api/applications';
-import { resolvePaginatedRoute, SearchParams } from '@/src/utils/search-params';
+import { resolvePaginatedRoute, type SearchParams } from '@/src/utils/search-params';
 
 export default async function ApplicationsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { data: applications, pagination, search } = await resolvePaginatedRoute({
+  const {
+    data: applications,
+    pagination,
+    search,
+  } = await resolvePaginatedRoute({
     searchParams,
     pathname: '/applications',
     fetchFn: getApplications,

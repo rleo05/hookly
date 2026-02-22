@@ -1,6 +1,11 @@
 'use server';
 
-import type { ApplicationItem, ApplicationList, CreateApplication, UpdateApplication } from '@hookly/api-types';
+import type {
+  ApplicationItem,
+  ApplicationList,
+  CreateApplication,
+  UpdateApplication,
+} from '@hookly/api-types';
 import { headers } from 'next/headers';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -51,7 +56,7 @@ export async function createApplication(data: CreateApplication): Promise<{ erro
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch { }
+    } catch {}
 
     if (res.status === 409 || res.status === 400) {
       return { error: message };
@@ -94,7 +99,7 @@ export async function deleteApplication(appId: string): Promise<{ error?: string
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch { }
+    } catch {}
 
     return { error: message };
   }
@@ -122,7 +127,7 @@ export async function updateApplication(
     try {
       const errorBody = await res.json();
       message = errorBody.message ?? message;
-    } catch { }
+    } catch {}
 
     if (res.status === 409 || res.status === 400) {
       return { error: message };

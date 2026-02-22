@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { Input } from '@/src/components/form/input';
 import { Button } from '@/src/components/ui/button';
 import {
   Dialog,
@@ -16,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/src/components/ui/dialog';
-import { Input } from '@/src/components/form/input';
 import { createApplication } from '@/src/services/api/applications';
 
 export function CreateApplicationModal({ children }: { children?: React.ReactNode }) {

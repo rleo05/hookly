@@ -34,7 +34,6 @@ interface KeysPanelProps {
 }
 
 export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps) {
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -104,7 +103,10 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
 
         <div className="flex items-center gap-4 w-full @[570px]:w-auto">
           <CreateKeyModal>
-            <button className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
+            <button
+              className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover"
+              type="button"
+            >
               Create Key
               <Plus size={18} />
             </button>
@@ -134,12 +136,12 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
                     title={key.name.length >= 26 ? key.name : undefined}
                     className="max-w-[25ch] truncate"
                   >
-                    <span className="flex items-center gap-2">
-                      {key.name}
-                    </span>
+                    <span className="flex items-center gap-2">{key.name}</span>
                   </TableCell>
                   <TableCell className="font-mono text-sm text-text-muted">{key.keyId}</TableCell>
-                  <TableCell className="tabular-nums">{formatDate(new Date(key.createdAt))}</TableCell>
+                  <TableCell className="tabular-nums">
+                    {formatDate(new Date(key.createdAt))}
+                  </TableCell>
                   <TableCell className="text-center">
                     <div className="flex gap-2 justify-center">
                       <DropdownMenu>

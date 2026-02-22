@@ -79,6 +79,7 @@ export const webhookDispatchPayloadSchema = z.object({
     method: z.string(),
     headers: z.custom<Prisma.JsonValue>().nullable().optional(),
     secret: z.string(),
+    retryCount: z.number().int().min(0).default(0),
 });
 
 export type WebhookDispatchPayload = z.infer<typeof webhookDispatchPayloadSchema>;

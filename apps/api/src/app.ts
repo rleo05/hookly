@@ -14,6 +14,7 @@ import { apiKeyRoutes } from './modules/api-key/routes.js';
 import applicationAppRoutes from './modules/application/app-routes.js';
 import applicationRoutes from './modules/application/routes.js';
 import { authRoutes } from './modules/auth/routes.js';
+import dashboardAppRoutes from './modules/dashboard/app-routes.js';
 import endpointAppRoutes from './modules/endpoint/app-routes.js';
 import endpointRoutes from './modules/endpoint/routes.js';
 import eventAppRoutes from './modules/event/app-routes.js';
@@ -57,6 +58,7 @@ fastify.register(apiKeyAppRoutes, { prefix: '/app/api-key' });
 fastify.register(applicationAppRoutes, { prefix: '/app/application' });
 fastify.register(endpointAppRoutes, { prefix: '/app/endpoint' });
 fastify.register(eventAppRoutes, { prefix: '/app' });
+fastify.register(dashboardAppRoutes, { prefix: '/app/dashboard' });
 
 const start = async () => {
   try {

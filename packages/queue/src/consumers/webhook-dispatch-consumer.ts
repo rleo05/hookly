@@ -44,7 +44,7 @@ export class WebhookDispatchConsumer extends QueueBase {
         const deaths = headers?.['x-death']
         if (!deaths?.length) return 0
 
-        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_DISPATCH.name)
-        return entry?.count ?? 0
+        const entry = deaths.find(d => d.queue === QUEUES.WEBHOOK_DISPATCH.retryQueue?.name)
+        return Number(entry?.count ?? 0)
     }
 }
