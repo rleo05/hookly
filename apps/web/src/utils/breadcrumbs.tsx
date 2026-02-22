@@ -20,7 +20,7 @@ const SUB_PAGE_CONFIG: Record<string, { icon: any; label: string }> = {
 };
 
 const BreadcrumbContainer = ({ children }: { children: React.ReactNode }) => (
-  <div className="pl-8 flex items-center gap-2 text-base">{children}</div>
+  <div className="flex items-center gap-2 text-sm md:text-base">{children}</div>
 );
 
 function formatTitle(slug: string) {

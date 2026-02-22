@@ -1,6 +1,6 @@
 'use client';
 
-import { LogOut, Settings, X } from 'lucide-react';
+import { LogOut, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/src/components/ui/dropdown-menu';
 import { useSession } from '@/src/contexts/session-context';
 import { authClient } from '@/src/lib/auth-client';
 
@@ -75,8 +75,8 @@ export function UserCard() {
           </div>
         </div>
         <DropdownMenuItem className="cursor-pointer mt-6 py-2.5">
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

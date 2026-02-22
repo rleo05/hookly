@@ -1,5 +1,4 @@
-import { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/src/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -8,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/src/components/ui/dialog';
 
 interface ConfirmModalProps {
   children?: React.ReactNode;
@@ -31,44 +30,6 @@ export function ConfirmModal({
   open,
   onClose,
 }: ConfirmModalProps) {
-  const [progress, setProgress] = useState(0);
-  const requestRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-  const DURATION = 1500;
-
-  const animate = (time: number) => {
-    if (!startTimeRef.current) startTimeRef.current = time;
-    const runtime = time - startTimeRef.current;
-    const newProgress = Math.min((runtime / DURATION) * 100, 100);
-
-    setProgress(newProgress);
-
-    if (newProgress < 100) {
-      requestRef.current = requestAnimationFrame(animate);
-    }
-  };
-
-  const handleMouseEnter = () => {
-    requestRef.current = requestAnimationFrame(animate);
-  };
-
-  const handleMouseLeave = () => {
-    if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
-      requestRef.current = null;
-    }
-    startTimeRef.current = null;
-    setProgress(0);
-  };
-
-  const handleConfirm = (e: React.MouseEvent) => {
-    if (progress < 100) {
-      e.preventDefault();
-      return;
-    }
-    onConfirm();
-  };
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -89,19 +50,11 @@ export function ConfirmModal({
           </DialogClose>
           <Button
             type="submit"
-            onClick={handleConfirm}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onFocus={handleMouseEnter}
-            onBlur={handleMouseLeave}
-            className="cursor-pointer relative overflow-hidden transition-all font-medium"
-            style={{
-              background: `linear-gradient(to right, var(--primary) ${progress}%, var(--muted-bg) ${progress}%)`,
-              color: progress >= 50 ? '#0a0a0aff' : 'var(--text-main)',
-              borderColor: 'transparent',
-            }}
+            variant="destructive"
+            onClick={() => onConfirm()}
+            className="font-medium cursor-pointer"
           >
-            <span className="relative z-10 pointer-events-none">{confirmText || 'Confirm'}</span>
+            {confirmText || 'Confirm'}
           </Button>
         </DialogFooter>
       </DialogContent>

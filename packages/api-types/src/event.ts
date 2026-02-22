@@ -5,15 +5,15 @@ import type { JsonValue } from './endpoint.js';
 // Event Types
 
 export const createEventTypeSchema = z.object({
-    name: z.string().min(1).max(100),
-    description: z.string().max(500).optional(),
+    name: z.string().trim().min(1, 'Name must be at least 1 character long').max(100, 'Name must be at most 100 characters long'),
+    description: z.string().trim().max(500, 'Description must be at most 500 characters long').optional(),
     disabled: z.boolean().optional(),
 });
 
 export type CreateEventType = z.infer<typeof createEventTypeSchema>;
 
 export const updateEventTypeSchema = z.object({
-    description: z.string().max(500).optional(),
+    description: z.string().trim().max(500, 'Description must be at most 500 characters long').optional(),
     disabled: z.boolean().optional(),
 });
 
@@ -85,8 +85,8 @@ export type EventList = {
 
 export const createEventSchema = z.object({
     applicationUid: z.string().min(1),
-    eventType: z.string().min(1),
-    externalId: z.string().min(1).optional(),
+    eventType: z.string().trim().min(1, 'Event type must be at least 1 character long').max(100, 'Event type must be at most 100 characters long'),
+    externalId: z.string().trim().min(1, 'External ID must be at least 1 character long').max(100, 'External ID must be at most 100 characters long').optional(),
     payload: z.record(z.string(), z.any()).refine(
         (obj) => {
             return Object.keys(obj).length > 0;

@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/src/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/src/components/ui/table';
 import { formatDate } from '@/src/utils/dates';
 import { deleteApplication } from '../../services/api/applications';
 import { ConfirmModal } from '../confirm-modal';
@@ -93,21 +93,21 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
   };
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center mt-10 md:mt-6 gap-4">
+    <div className="@container">
+      <div className="flex flex-col @[570px]:flex-row justify-between items-stretch @[570px]:items-center mt-10 @[570px]:mt-6 gap-4">
         <Input
           id="search"
           ref={inputRef}
           placeholder="Search by uid, external id or name"
-          className="w-full md:min-w-84 md:w-auto px-4 pl-11 py-1.5 md:py-2 rounded-lg bg-muted-bg border border-border focus:outline-none"
+          className="w-full @[570px]:min-w-84 @[570px]:w-auto px-4 pl-11 py-1.5 rounded-lg bg-muted-bg border border-border focus:outline-none"
           icon={Search}
           defaultValue={search}
           onChange={(e) => handleSearch(e.target.value)}
         />
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex items-center gap-4 w-full @[570px]:w-auto">
           <CreateApplicationModal>
-            <button className="w-full md:w-auto bg-primary text-primary-foreground font-semibold px-5 py-1.5 md:py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
+            <button className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
               Create Application
               <Plus size={18} />
             </button>
@@ -129,7 +129,7 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
                 <TableHead>External Id</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Updated At</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,10 +152,10 @@ export function ApplicationsPanel({ applications: applicationList, pagination, s
                   >
                     {application.externalId}
                   </TableCell>
-                  <TableCell>{formatDate(new Date(application.createdAt))}</TableCell>
-                  <TableCell>{formatDate(new Date(application.updatedAt))}</TableCell>
+                  <TableCell className='tabular-nums'>{formatDate(new Date(application.createdAt))}</TableCell>
+                  <TableCell className='tabular-nums'>{formatDate(new Date(application.updatedAt))}</TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-center">
                       <Link href={`/applications/${application.uid}`}>
                         <SquareArrowOutUpRight
                           size={18}

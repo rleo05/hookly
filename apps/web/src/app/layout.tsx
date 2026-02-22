@@ -31,6 +31,7 @@ export default async function RootLayout({
           <ThemeProvider>{children}</ThemeProvider>
         </SidebarProvider>
         <Toaster
+          className="select-none"
           position="top-right"
           toastOptions={{
             style: {

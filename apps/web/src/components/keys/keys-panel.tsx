@@ -11,7 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/src/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/src/components/ui/table';
 import { formatDate } from '@/src/utils/dates';
 import { revokeApiKey } from '../../services/api/keys';
 import { ConfirmModal } from '../confirm-modal';
@@ -90,21 +90,21 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
   };
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center mt-10 md:mt-6 gap-4">
+    <div className="@container">
+      <div className="flex flex-col @[570px]:flex-row justify-between items-stretch @[570px]:items-center mt-10 @[570px]:mt-6 gap-4">
         <Input
           id="search"
           ref={inputRef}
           placeholder="Search by name or key ID"
-          className="w-full md:min-w-84 md:w-auto px-4 pl-11 py-1.5 md:py-2 rounded-lg bg-muted-bg border border-border focus:outline-none"
+          className="w-full @[570px]:min-w-84 @[570px]:w-auto px-4 pl-11 py-1.5 rounded-lg bg-muted-bg border border-border focus:outline-none"
           icon={Search}
           defaultValue={search}
           onChange={(e) => handleSearch(e.target.value)}
         />
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex items-center gap-4 w-full @[570px]:w-auto">
           <CreateKeyModal>
-            <button className="w-full md:w-auto bg-primary text-primary-foreground font-semibold px-5 py-1.5 md:py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
+            <button className="w-full @[570px]:w-auto bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover">
               Create Key
               <Plus size={18} />
             </button>
@@ -114,7 +114,7 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
 
       {!keyList.length ? (
         <div className="flex justify-center h-[300px] items-center">
-          <p className="text-lg text-text-muted">No API keys found</p>
+          <p className="text-lg text-text-muted">No keys found</p>
         </div>
       ) : (
         <div className="mt-6 min-w-0 w-full">
@@ -124,7 +124,7 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
                 <TableHead>Name</TableHead>
                 <TableHead>Key ID</TableHead>
                 <TableHead>Created At</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,9 +139,9 @@ export function KeysPanel({ keys: keyList, pagination, search }: KeysPanelProps)
                     </span>
                   </TableCell>
                   <TableCell className="font-mono text-sm text-text-muted">{key.keyId}</TableCell>
-                  <TableCell>{formatDate(new Date(key.createdAt))}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
+                  <TableCell className="tabular-nums">{formatDate(new Date(key.createdAt))}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-2 justify-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger className="outline-none">
                           <EllipsisVertical

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/src/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/src/components/ui/dialog';
 import { Input } from '@/src/components/form/input';
 import { createApiKey } from '@/src/services/api/keys';
 
@@ -54,7 +54,7 @@ export function CreateKeyModal({ children }: { children?: React.ReactNode }) {
   }
 
   async function handleCopy() {
-    if (!createdKey) return;
+    if (!createdKey || copied) return;
     await navigator.clipboard.writeText(createdKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -88,9 +88,9 @@ export function CreateKeyModal({ children }: { children?: React.ReactNode }) {
               <p className="text-sm text-text-muted">
                 Copy your API key now. You won&apos;t be able to see it again.
               </p>
-              <div className="flex items-center gap-2 overflow-hidden" onClick={handleCopy}>
+              <div className="flex items-center gap-2 overflow-hidden">
                 <code className="flex-1 truncate rounded-lg bg-muted-bg border border-border px-3 py-2 text-sm font-mono text-text-main max-w-full">
-                  {createdKey}
+                  {copied ? 'Copied!' : createdKey}
                 </code>
                 <button
                   type="button"

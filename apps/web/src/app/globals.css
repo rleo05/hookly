@@ -9,6 +9,9 @@
 
   --primary-hover: #6d28d9;
 
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
   --accent: #a78bfa;
 
   --border: #e5e1f5;
@@ -47,6 +50,9 @@
 
   --primary-hover: #9b7af5;
 
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
   --accent: #8b5cf6;
 
   --border: #2a2a3d;
@@ -82,6 +88,8 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-hover: var(--primary-hover);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent: var(--accent);
   --color-border: var(--border);
   --color-border-bold: var(--border-bold);

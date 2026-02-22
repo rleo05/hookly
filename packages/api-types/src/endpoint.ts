@@ -11,9 +11,9 @@ export type JsonValue =
 
 export const createEndpointSchema = z.object({
     applicationUid: z.string().min(1),
-    description: z.string().optional(),
+    description: z.string().trim().min(1, 'Description must be at least 1 character long').max(500, 'Description must be at most 500 characters long').optional(),
     eventTypes: z.array(z.string().min(1)).nullable().optional(),
-    secret: z.string().min(3).optional(),
+    secret: z.string().trim().min(3, 'Secret must be at least 3 characters long').max(100, 'Secret must be at most 100 characters long').optional(),
     isActive: z.boolean().optional(),
     request: z.object({
         url: z.url({ error: 'url must be https', protocol: /^https$/ }),
@@ -36,9 +36,9 @@ export const updateEndpointSchema = z.object({
             method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']).optional(),
         })
         .optional(),
-    description: z.string().optional(),
+    description: z.string().trim().min(1, 'Description must be at least 1 character long').max(500, 'Description must be at most 500 characters long').optional(),
     eventTypes: z.array(z.string().min(1)).nullable().optional(),
-    secret: z.string().min(3).optional(),
+    secret: z.string().trim().min(3, 'Secret must be at least 3 characters long').max(100, 'Secret must be at most 100 characters long').optional(),
     isActive: z.boolean().optional(),
 });
 

@@ -1,11 +1,12 @@
 'use client';
 
-import { PanelLeft, Settings, Webhook } from 'lucide-react';
+import { Settings, Webhook } from 'lucide-react';
 import Link from 'next/link';
 import { useSidebar } from '../../contexts/sidebar-context';
 import { AppMenu } from './app-menu';
 import { MainMenu } from './main-menu';
 import { SidebarLink } from './sidebar-link';
+import { ToggleSideBar } from './toggle-sidebar';
 
 const bottomItems = [{ label: 'Settings', href: '/dashboard/settings', icon: Settings }];
 
@@ -15,7 +16,8 @@ export function Sidebar(props: SidebarProps) {
   const { isOpen, toggle: toggleSideBar } = useSidebar();
 
   return (
-    <aside className={`h-full flex flex-col ${isOpen ? 'w-[260px]' : 'w-[60px]'}`}>
+    <>
+    <aside className={`fixed md:static z-50 h-full flex transition-[width] duration-200 flex-col ${isOpen ? 'w-[260px] bg-surface md:bg-transparent inset-0' : 'w-[60px] hidden md:flex'}`}>
       <div
         className={`flex py-4 px-3 pb-8 ${isOpen ? 'justify-between items-center' : 'flex-col items-center gap-4'}`}
       >
@@ -32,15 +34,7 @@ export function Sidebar(props: SidebarProps) {
           </Link>
         </div>
 
-        <button
-          type="button"
-          className="p-2 rounded-xl cursor-pointer transition-all duration-200 text-text-muted"
-          onClick={toggleSideBar}
-          aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
-          title={isOpen ? 'Close sidebar' : 'Open sidebar'}
-        >
-          <PanelLeft size={20} />
-        </button>
+        <ToggleSideBar />
       </div>
 
       <nav aria-label="Sidebar" className="flex-1 flex flex-col">
@@ -63,5 +57,13 @@ export function Sidebar(props: SidebarProps) {
         </ul>
       </nav>
     </aside>
+
+    {isOpen && (
+      <div
+        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-200 md:hidden"
+        onClick={toggleSideBar}
+      />
+    )}
+    </>
   );
 }

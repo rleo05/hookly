@@ -18,6 +18,8 @@ export const dispatchWebhook = async (
 ) => {
   const retryCount = webhookDispatchConsumer.getRetryCount(queueHeaders);
 
+  console.log(data);
+
   try {
     // add new field to store start_processing_at
     const affectedRows = await prisma.$executeRaw`
@@ -64,7 +66,7 @@ export const dispatchWebhook = async (
     const stringPayload = JSON.stringify(payload);
 
     const startTime = Date.now();
-    const { statusCode, headers: responseHeaders } = await limit(() =>
+    const { body,statusCode, headers: responseHeaders } = await limit(() =>
       request(data.url, {
         method: data.method,
         // block dangerous headers on endpoint creation
@@ -76,6 +78,8 @@ export const dispatchWebhook = async (
         dispatcher: client,
       }),
     );
+
+    await body.dump();
 
     if (statusCode >= 300 && isRetryable(statusCode)) {
       await prisma.eventAttempt.update({

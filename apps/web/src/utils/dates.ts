@@ -3,8 +3,7 @@ export const formatDate = (date: Date) => {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 };

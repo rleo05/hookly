@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { PaginationResult } from './pagination.js';
 
 export const apiKeyCreateSchema = z.object({
-    name: z.string().min(3).max(100),
+    name: z.string().trim().min(3, 'Name must be at least 3 characters long').max(100, 'Name must be at most 100 characters long'),
 });
 
 export const apiKeyDeleteSchema = z.object({

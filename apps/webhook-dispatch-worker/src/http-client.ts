@@ -52,7 +52,7 @@ const client = new Agent({
           if (finished) return;
           finished = true;
           if (err) {
-            callback(err, null);
+            return callback(err, null);
           }
 
           callback(null, sock!);
@@ -69,8 +69,6 @@ const client = new Agent({
             servername: opts.hostname,
             ALPNProtocols: ['http/1.1'],
           });
-
-          socket.setTimeout(5000);
 
           socket.once('secureConnect', () => done(undefined, socket));
           socket.once('timeout', () => {
